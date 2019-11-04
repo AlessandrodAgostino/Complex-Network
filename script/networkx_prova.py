@@ -3,7 +3,7 @@ import os
 import networkx as nx
 import pylab as plt
 import numpy as np
-path = os.path.join(os.path.dirname('__file__'), 'data', 'directed_SymptomsNet.gexf')
+path = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'directed_SymptomsNet.gexf')
 
 graph = nx.read_gexf(path)
 
