@@ -90,3 +90,7 @@ for i, node1 in enumerate(count.keys()):
 
 
 #%%
+a = nx.readwrite.json_graph.node_link_data(graph)
+import json
+with open("Symptoms.json","w") as f:
+  json.dump(a, f)
