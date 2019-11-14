@@ -9,9 +9,9 @@ path = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'SymptomsNet.gexf
 graph = nx.read_gexf(path)
 #%%
 nodes = list(graph.nodes())
-length = round(math.log(len(nodes),10)) + 1
+length_nod = round(math.log(len(nodes),10)) + 1
 
-nodes_dict = [{"name": name, "_key": 'N{}'.format(str(n).zfill(length))} for n,name in enumerate(nodes)]
+nodes_dict = [{"name": name, "_key": 'N{}'.format(str(n).zfill(length_nod))} for n,name in enumerate(nodes)]
 
 """
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -24,13 +24,13 @@ with open('/home/alessandro/Dropbox/Chimera/Sym_nodes_Ale.json', 'w') as fout:
 
 #%%
 edges = list(graph.edges())
-length = round(math.log(len(edges),10)) + 1
+length_edg = round(math.log(len(edges),10)) + 1
 edges_dict = []
 
 for n,edge in enumerate(edges):
-    edges_dict.append({"_from" : "Sym_Deas/N{}".format(str(nodes.index(edge[0])).zfill(length)),
-                       "_to" : "Sym_Deas/N{}".format(str(nodes.index(edge[1])).zfill(length)),
-                       "_key": 'E{}'.format(str(n).zfill(length))})
+    edges_dict.append({"_from" : "Sym_Deas/N{}".format(str(nodes.index(edge[0])).zfill(length_nod)),
+                       "_to" : "Sym_Deas/N{}".format(str(nodes.index(edge[1])).zfill(length_nod)),
+                       "_key": 'E{}'.format(str(n).zfill(length_edg))})
 
 with open('/home/alessandro/Dropbox/Chimera/Sym_edges_Ale.json', 'w') as fout:
     json.dump(edges_dict , fout, ensure_ascii=False)
