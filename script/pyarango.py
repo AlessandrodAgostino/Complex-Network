@@ -1,7 +1,6 @@
 from pyArango.connection import *
 
 ##your pswd
-con = Connection(username="root", password="Lalamomo-12")
 
 #load your database
 db = con["symptoms"]
