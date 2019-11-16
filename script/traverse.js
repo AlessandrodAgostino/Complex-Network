@@ -29,6 +29,7 @@ var config = {
 
 var traverser = new traversal.Traverser(config);
 var cursor = db.v.all(); // v is my vertex collection
+
 while(cursor.hasNext()) {
   var node = cursor.next();
   traverser.traverse({sum: 0}, node);
