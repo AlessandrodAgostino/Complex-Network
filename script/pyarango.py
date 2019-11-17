@@ -1,24 +1,55 @@
 from pyArango.connection import *
+import json
 
-##your pswd
+# your pswd
+#
 
-#load your database
-db = con["symptoms"]
 
-#load your collection
-nodes = db.collections["nodes"]
-edges = db.collections["edges"]
+def load_pass(filename):
+  '''
+  load password from a json file formatted like :
+  {
+    "username" : "root"
+    "password" : "1234"
+  }
+  '''
 
-#node1 è un singolo documento della collezione nodes, quindi se ho capito bene ogni nodo è un documento
-#della collezione nodes
-node1 = nodes["N0000"]
+  with open(filename) as f:
+    doc      = json.load(f)
+    password = doc['password']
+  return password
 
-#accede al nome del nodo
-def report(document):
-    print("malattia : %s" %document["name"])
+conn = Connection(arangoURL='http://127.0.0.1:8529', username='root', password='your_arangoDB_pass')
 
-report(node1)
-# aql = "FOR x IN nodes RETURN x._key"
-# queryResult = db.AQLQuery(aql, rawResults=True, batchSize=0)
-# for key in queryResult:
-#     print(key)
+# load your database
+db = conn['_system']
+
+# load your collections
+nodes = db.collections['Sym_Deas']
+edges = db.collections['Sym_Deas_edges']
+
+def get_name(doc):
+  '''
+  returns nodes name
+
+  Parameters:
+    doc : Document of arango collections
+  '''
+
+  return doc['name']
+
+
+if db.hasCollection(name='Astenia'):
+  # not complete
+  ql = ("for v, e, p in 1 outbound 'Sym_Deas/N0004' Sym_Deas_edges " +
+             "insert {name : v.name, dist : length(p.edges)} in Astenia")
+
+  queryResult = db.AQLQuery(aql, rawResults=True, batchSize=1)
+  # it works!
+else :
+  astenia = db.createCollection('Collection', name='Astenia')
+  ql = ("for v, e, p in 1 outbound 'Sym_Deas/N0004' Sym_Deas_edges " +
+             "insert {name : v.name, dist : length(p.edges)} in Astenia")
+
+  queryResult = db.AQLQuery(aql, rawResults=True, batchSize=1)
+  # it works!
