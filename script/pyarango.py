@@ -80,7 +80,7 @@ if __name__ == '__main__':
     else:
       with open(filename) as f:
         password = f.read()
-        password = password[-2]
+        password = password[:-1]
       return password
 
   conn = Connection(arangoURL='http://127.0.0.1:8529', username='root', password=load_pass(filename='pwd.txt', isjson=False))
