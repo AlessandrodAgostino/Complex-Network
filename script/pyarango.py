@@ -5,7 +5,7 @@ import json
 
 class Database():
 
-  def __init__(name, username, password, URL='http://127.0.0.1:8529'):
+  def __init__(self, name, username, password, URL='http://127.0.0.1:8529'):
     '''
     instantiate a connection with database name, and an object database self._db
     '''
@@ -24,7 +24,7 @@ class Database():
     return self._db.name
 
   @property
-  def collections(self)
+  def collections(self):
     return self._db.collections()
 
   def apply_query(self, name, aql, result):
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
   # Some try with pyArango
 
-  def load_pass(filename):
+  def load_pass(filename, isjson=True):
     '''
     load password from a json file formatted like :
     {
@@ -70,13 +70,20 @@ if __name__ == '__main__':
       "password" : "1234"
     }
     '''
+    
+    if isjson:
+      with open(filename) as f:
+        doc      = json.load(f)
+        password = doc['password']
+      return password
+    
+    else:
+      with open(filename) as f:
+        password = f.read()
+        password = password[-2]
+      return password
 
-    with open(filename) as f:
-      doc      = json.load(f)
-      password = doc['password']
-    return password
-
-  conn = Connection(arangoURL='http://127.0.0.1:8529', username='root', password='')
+  conn = Connection(arangoURL='http://127.0.0.1:8529', username='root', password=load_pass(filename='pwd.txt', isjson=False))
 
   # load your database
   db = conn['_system']
