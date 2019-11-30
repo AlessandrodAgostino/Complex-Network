@@ -30,29 +30,46 @@ def saveCollection(name, filename, database):
   else :
     print(f'Collection {name} does not exist in this database') 
 
-def first_neighbours(db, collection, node, name, save=False):
+def first_neighbours(db, starting_node, nodes_collection, edges_collection, resultsname, save=False):
   
   bind_vars={
-      '@collection' : collection,
-      'node'        : node,
-      '@result'     : name
+      'starting_node' : starting_node,
+      '@edges'        : edges_collection,
+      '@nodes'        : nodes_collection,
+      '@result'       : resultsname,
+      '@result_edges' : resultsname + '_edges',
       }
   
-  aql = 'FOR v,e,p IN 1..1 ANY @node @@collection'
+  aql = 'FOR c IN @@nodes filter c.name == @starting_node FOR v,e IN 1..1 ANY c._id @@edges'
 
   if save:
-  
-    aql += ' RETURN doc'
+    
+    aql += ' RETURN v'
     res  = db.aql.execute(aql, bind_vars=bind_vars)
     
-    with open(name, 'w') as file:
+    with open(resultsname, 'w') as file:
       json.dump(res, file)
     
   else : 
-
-   
     
-    aql += ' INSERT v IN @@result'
+    results_edges = resultsname + '_edges'
+    
+    if db.has_collection(resultsname):
+      
+      db.collection(resultsname).truncate()
+    
+    else :
+      db.create_collection(resultsname)
+      
+
+    if db.has_collection(results_edges):
+      
+      db.collection(results_edges).truncate()
+    
+    else :
+      db.create_collection(results_edges, edge=True)
+    
+    aql += ' INSERT v IN @@result INSERT e in @@result_edges'
     db.aql.execute(aql, bind_vars=bind_vars)
     
   
@@ -67,19 +84,24 @@ if __name__ == '__main__':
   # Connect to "_system" database as root user.
   db = client.db('_system', username='root', password=load_pass('pwd.txt', isjson=False ))
   
-  query = 'FOR v IN 1..1 ANY FILTER v.name == "Astenia" "Sym_Deas"  edges'
-    
-  db.aql.execute(query)
+
+
+  first_neighbours(db=db, 
+                   starting_node='astenia', 
+                   nodes_collection='Sym_Deas', 
+                   edges_collection='edges', 
+                   resultsname='Astenia', 
+                   save=False)
   
   
   
+  query = 'FOR v,e,p IN 1..1 ANY "Sym_Deas/N0010" edges return v'
+  
+  file = db.aql.execute(query)
+  res = file.fetch()
   
   
-  
-  
-  
-  
-  
+#  db.delete_graph('astenia')
   
   
   
