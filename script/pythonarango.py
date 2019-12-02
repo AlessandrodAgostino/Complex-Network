@@ -63,8 +63,8 @@ def first_neighbours(db, starting_node, nodes_collection, edges_collection, resu
 
     results_edges = resultsname + '_edges'
 
-    check_create_empty_collection(resultsname)   # create or truncate the collection resultname
-    check_create_empty_collection(results_edges) # create or truncate the collection resultname_edges
+    check_create_empty_collection(db, resultsname)   # create or truncate the collection resultname
+    check_create_empty_collection(db, results_edges) # create or truncate the collection resultname_edges
 
     aql += ' INSERT v IN @@result INSERT e in @@result_edges'
     db.aql.execute(aql, bind_vars=bind_vars)
@@ -81,21 +81,19 @@ if __name__ == '__main__':
   # Connect to "_system" database as root user.
   db = client.db('_system', username='root', password=load_pass('pwd.txt', isjson=False ))
 
-
-
   first_neighbours(db=db,
                    starting_node='astenia',
                    nodes_collection='Sym_Deas',
-                   edges_collection='edges',
+                   edges_collection='Sym_Deas_edges',
                    resultsname='Astenia',
                    save=False)
 
 
 
-  query = 'FOR v,e,p IN 1..1 ANY "Sym_Deas/N0010" edges return v'
-
-  file = db.aql.execute(query)
-  res = file.fetch()
-
-
+  # query = 'FOR v,e,p IN 1..1 ANY "Sym_Deas/N0010" edges return v'
+  #
+  # file = db.aql.execute(query)
+  # res = file.fetch()
+  #
+  #
 #  db.delete_graph('astenia')
