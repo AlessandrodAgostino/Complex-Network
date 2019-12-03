@@ -39,6 +39,8 @@ def check_create_empty_collection(db, collection_name):
   else :
     db.create_collection(collection_name)
 
+  return db.collection(name)
+
 def first_neighbours(db, starting_node, nodes_collection, edges_collection, resultsname, save=False):
 
   bind_vars={
@@ -69,14 +71,13 @@ def first_neighbours(db, starting_node, nodes_collection, edges_collection, resu
     aql += ' INSERT v IN @@result INSERT e in @@result_edges'
     db.aql.execute(aql, bind_vars=bind_vars)
 
-def get_vertex(filter, collection_name):
+def get_vertex(db, filter, collection_name):
   """
   filter : dictionary of conditions
 
   return: the document as dict
   """
-  return db.collection(collection_name).find(filter).batch()[0]
-
+  return db.collection(collection_name).find(filter).next()
 
 def main():
   from arango import ArangoClient
@@ -95,18 +96,32 @@ def main():
   if not Sym_Net.has_edge_definition('Sym_Deas_edges'):
       Sym_Net.create_edge_definition('Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
 
-  #extracting node
-  res = get_vertex({'name':'astenia'}, 'Sym_Deas')
+  # extracting node
+  res = get_vertex(db, filter={'name':'astenia'}, collection_name='Sym_Deas')
 
-  #traversal
+  # traversal
   neighbours = Sym_Net.traverse(res,
                                 direction        ='outbound',
                                 item_order       ='forward',
-                                min_depth        = 2,
+                                min_depth        = 1,
                                 max_depth        = 2,
                                 vertex_uniqueness='global')
 
+  # create a new graph with the extracted nodes.
+  astenia_nodes = check_create_empty_collection(db, 'astenia_nodes')
 
+  astenia_nodes.insert_many(neighbours['vertices'])
+
+  # how to recycle edge connection??????''???????????????????????????????????????????
+
+  neighbours['paths'][0]['edges']
+  unique(neighbours['paths'])
+
+  db.create_graph(name='Astenia')
+  Astenia = db.graph('Astenia')
+
+
+  Astenia.create_edge_definition()
 
 if __name__ == '__main__':
   main()
