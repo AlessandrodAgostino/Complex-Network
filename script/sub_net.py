@@ -1,5 +1,6 @@
 from arango import ArangoClient
 import json
+from script.pythonarango import check_create_empty_collection, check_create_empty_graph
 
 
 def load_pass(filename, isjson=True):
@@ -36,12 +37,7 @@ client = ArangoClient(hosts='http://127.0.0.1:8529')
 # Connect to "_system" database as root user.
 db = client.db('_system', username='root', password=load_pass('script/pwd.txt', isjson=False ))
 
-if db.has_graph('Sym_Net'):
-  Sym_Net = db.graph('Sym_Net')
-else: Sym_Net = db.create_graph(name='Sym_Net')
-
-if not Sym_Net.has_edge_definition('Sym_Deas_edges'):
-
+Sym_Net = check_create_empty_graph(db, 'Sym_Net')
 
 Sym_Net.create_edge_definition('Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
 
@@ -52,18 +48,28 @@ res = get_vertex({'name':'astenia'}, 'Sym_Deas')
 neighbours = Sym_Net.traverse(res,
                               direction        ='outbound',
                               item_order       ='forward',
-                              min_depth        = 2,
-                              max_depth        = 2,
+                              min_depth        = 1,
+                              max_depth        = 1,
                               vertex_uniqueness='global')
 
-if not db.has_collection('Sub_Sym_Deas_edges'):
-  db.create_collection('Sub_Sym_Deas_edges', edge = True)
-else: db.collection('Sub_Sym_Deas_edges').truncate()
+check_create_empty_collection(db, 'Sub_Sym_Deas_edges')
+
+# neighbours['vertices']
 
 for n in neighbours['vertices']:
-  for ed in Sym_Net.edge_collection('Sym_Deas_edges').edges(n)['edges']:
-    if Sym_Net.vertex_collection('Sym_Deas').get(ed['_to']) in neighbours['vertices']:
-      db.collection('Sub_Sym_Deas_edges').insert(ed)
+  edges_of_n = Sym_Net.edge_collection('Sym_Deas_edges').edges(n)['edges']
+
+  for ed in edges_of_n:
+    outgoing_node = Sym_Net.vertex_collection('Sym_Deas').get(ed['_to'])
+
+    if outgoing_node in neighbours['vertices']:
+      try :
+        db.collection('Sub_Sym_Deas_edges').insert(ed)
+      except:
+        pass
 
 
-neighbours['vertices']
+graph = check_create_empty_graph(db, 'Sub_Net')
+
+if not graph.has_edge_definition('Sub_Sym_Deas_edges'):
+  graph.create_edge_definition('Sub_Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
