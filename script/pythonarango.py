@@ -69,9 +69,16 @@ def first_neighbours(db, starting_node, nodes_collection, edges_collection, resu
     aql += ' INSERT v IN @@result INSERT e in @@result_edges'
     db.aql.execute(aql, bind_vars=bind_vars)
 
+def get_vertex(filter, collection_name):
+  """
+  filter : dictionary of conditions
 
-if __name__ == '__main__':
+  return: the document as dict
+  """
+  return db.collection(collection_name).find(filter).batch()[0]
 
+
+def main():
   from arango import ArangoClient
   import json
 
@@ -79,21 +86,27 @@ if __name__ == '__main__':
   client = ArangoClient(hosts='http://127.0.0.1:8529')
 
   # Connect to "_system" database as root user.
-  db = client.db('_system', username='root', password=load_pass('pwd.txt', isjson=False ))
+  db = client.db('_system', username='root', password=load_pass('script/pwd.txt', isjson=False ))
 
-  first_neighbours(db=db,
-                   starting_node='astenia',
-                   nodes_collection='Sym_Deas',
-                   edges_collection='Sym_Deas_edges',
-                   resultsname='Astenia',
-                   save=False)
+  if db.has_graph('Sym_Net'):
+      Sym_Net = db.graph('Sym_Net')
+  else: Sym_Net = db.create_graph(name='Sym_Net')
+
+  if not Sym_Net.has_edge_definition('Sym_Deas_edges'):
+      Sym_Net.create_edge_definition('Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
+
+  #extracting node
+  res = get_vertex({'name':'astenia'}, 'Sym_Deas')
+
+  #traversal
+  neighbours = Sym_Net.traverse(res,
+                                direction        ='outbound',
+                                item_order       ='forward',
+                                min_depth        = 2,
+                                max_depth        = 2,
+                                vertex_uniqueness='global')
 
 
 
-  # query = 'FOR v,e,p IN 1..1 ANY "Sym_Deas/N0010" edges return v'
-  #
-  # file = db.aql.execute(query)
-  # res = file.fetch()
-  #
-  #
-#  db.delete_graph('astenia')
+if __name__ == '__main__':
+  main()
