@@ -30,16 +30,26 @@ def saveCollection(name, filename, database):
   else :
     print(f'Collection {name} does not exist in this database')
 
-def check_create_empty_collection(db, collection_name):
+def check_create_empty_collection(db, collection_name, edge=True):
 
   if db.has_collection(collection_name):
-
     db.collection(collection_name).truncate()
 
   else :
-    db.create_collection(collection_name)
+    db.create_collection(collection_name, edge=edge)
 
-  return db.collection(name)
+  return db.collection(collection_name)
+
+def check_create_empty_graph(db, graph_name):
+
+  if db.has_graph(graph_name):
+    db.delete_graph(graph_name)
+    graph = db.create_graph(name=graph_name)
+
+  else:
+    graph = db.create_graph(name=graph_name)
+
+  return graph
 
 def first_neighbours(db, starting_node, nodes_collection, edges_collection, resultsname, save=False):
 
@@ -79,7 +89,26 @@ def get_vertex(db, filter, collection_name):
   """
   return db.collection(collection_name).find(filter).next()
 
-def main():
+def retrieve_unique_edges(list_of_paths):
+  '''
+  list_of_path is a very particular list.
+  Result of the traversal function of python-arango, the list of path precisely.
+  '''
+
+  path_number = len(list_of_paths)
+  edges = []
+
+  for i in range(path_number):
+    path = list_of_paths[i]['edges']
+
+    for j in range(len(path)):
+      if path[j] not in edges:
+        edges.append(path[j])
+
+  return edges
+
+
+if __name__ == '__main__':
   from arango import ArangoClient
   import json
 
@@ -104,24 +133,21 @@ def main():
                                 direction        ='outbound',
                                 item_order       ='forward',
                                 min_depth        = 1,
-                                max_depth        = 2,
-                                vertex_uniqueness='global')
+                                max_depth        = 1,
+                                vertex_uniqueness='global',
+                                edge_uniqueness='None')
+
+  edges = retrieve_unique_edges(neighbours['paths'])
+
+  len(neighbours['vertices'])
+  len(edges)
 
   # create a new graph with the extracted nodes.
-  astenia_nodes = check_create_empty_collection(db, 'astenia_nodes')
+  astenia_nodes = check_create_empty_collection(db, 'astenia_edges', edge=True)
 
-  astenia_nodes.insert_many(neighbours['vertices'])
+  astenia_nodes.insert_many(edges)
 
-  # how to recycle edge connection??????''???????????????????????????????????????????
+  Sub_net = check_create_empty_graph(db, 'Astenia_friends')
 
-  neighbours['paths'][0]['edges']
-  unique(neighbours['paths'])
-
-  db.create_graph(name='Astenia')
-  Astenia = db.graph('Astenia')
-
-
-  Astenia.create_edge_definition()
-
-if __name__ == '__main__':
-  main()
+  if not Sym_Net.has_edge_definition('astenia_edges'):
+    Sym_Net.create_edge_definition('astenia_edges', ['Sym_Deas'], ['Sym_Deas'])
