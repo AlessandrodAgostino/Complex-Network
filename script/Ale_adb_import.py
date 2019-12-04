@@ -5,7 +5,7 @@ import math
 import networkx as nx
 import pylab as plt
 import numpy as np
-path = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'SymptomsNet.gexf')
+path = os.path.join(os.path.dirname('__file__') ,'data', 'SymptomsNet.gexf')
 graph = nx.read_gexf(path)
 #%%
 nodes = list(graph.nodes())
@@ -23,6 +23,9 @@ with open('/home/alessandro/Dropbox/Chimera/Sym_nodes_Ale.json', 'w') as fout:
     json.dump(nodes_dict , fout, ensure_ascii=False)
 
 #%%
+
+list(graph.nodes(False))[0]
+
 edges = list(graph.edges())
 length_edg = round(math.log(len(edges),10)) + 1
 edges_dict = []
