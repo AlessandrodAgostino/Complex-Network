@@ -6,7 +6,6 @@ def load_pass(filename, isjson=True):
     "password" : "1234"
   }
   '''
-
   if isjson:
     with open(filename) as f:
       doc      = json.load(f)
@@ -30,25 +29,19 @@ def saveCollection(name, filename, database):
   else :
     print(f'Collection {name} does not exist in this database')
 
-def check_create_empty_collection(db, collection_name, edge=True):
-
+def check_create_empty_collection(db, collection_name, edge=False):
   if db.has_collection(collection_name):
     db.collection(collection_name).truncate()
-
   else :
     db.create_collection(collection_name, edge=edge)
-
   return db.collection(collection_name)
 
 def check_create_empty_graph(db, graph_name):
-
   if db.has_graph(graph_name):
     db.delete_graph(graph_name)
     graph = db.create_graph(name=graph_name)
-
   else:
     graph = db.create_graph(name=graph_name)
-
   return graph
 
 def first_neighbours(db, starting_node, nodes_collection, edges_collection, resultsname, save=False):
