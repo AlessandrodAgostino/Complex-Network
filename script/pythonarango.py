@@ -100,7 +100,6 @@ def retrieve_unique_edges(list_of_paths):
 
   return edges
 
-
 if __name__ == '__main__':
   from arango import ArangoClient
   import json
@@ -132,9 +131,6 @@ if __name__ == '__main__':
 
   edges = retrieve_unique_edges(neighbours['paths'])
 
-  len(neighbours['vertices'])
-  len(edges)
-
   # create a new graph with the extracted nodes.
   astenia_nodes = check_create_empty_collection(db, 'astenia_edges', edge=True)
 
@@ -144,3 +140,18 @@ if __name__ == '__main__':
 
   if not Sym_Net.has_edge_definition('astenia_edges'):
     Sym_Net.create_edge_definition('astenia_edges', ['Sym_Deas'], ['Sym_Deas'])
+
+  filename = 'Sub_Sym_Deas_edges.json'
+
+  saveCollection(database=db, filename=filename, name=filename) # export edges collections
+
+  import networkx as nx
+
+  import json
+
+  with open(filename, 'rb') as f:
+    file = json.load(f)['batch']
+
+  file = [f'{ed["_from"]} {ed["_to"]} ' + '{name : {}}'.format(ed['name']) for ed in file]
+
+  G = nx.read_edgelist(file) # yuhuuuuu
