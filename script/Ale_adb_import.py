@@ -11,16 +11,18 @@ graph = nx.read_gexf(path)
 nodes = list(graph.nodes())
 length_nod = round(math.log(len(nodes),10)) + 1
 
-nodes_dict = [{"name": name, "_key": 'N{}'.format(str(n).zfill(length_nod))} for n,name in enumerate(nodes)]
-
+#nodes_dict = [{"name": name, "_key": 'N{}'.format(str(n).zfill(length_nod))} for n,name in enumerate(nodes)]
+nodes_dict = [{"name": name, "_key": name} for name in nodes]
+nodes_dict
 """
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 This JSON has to be imported is a Collection named "Sym_Deas"
 arangoimport --file ~/Dropbox/Chimera/Sym_nodes_Ale.json --collection Sym_Deas --create-collection true
 
 """
-with open('/home/alessandro/Dropbox/Chimera/Sym_nodes_Ale.json', 'w') as fout:
+with open('../data/Sym_nodes_Ale.json', 'w') as fout:
     json.dump(nodes_dict , fout, ensure_ascii=False)
+
 
 #%%
 edges = list(graph.edges())
@@ -28,11 +30,14 @@ length_edg = round(math.log(len(edges),10)) + 1
 edges_dict = []
 
 for n,edge in enumerate(edges):
-    edges_dict.append({"_from" : "Sym_Deas/N{}".format(str(nodes.index(edge[0])).zfill(length_nod)),
-                       "_to" : "Sym_Deas/N{}".format(str(nodes.index(edge[1])).zfill(length_nod)),
+    # edges_dict.append({"_from" : "Sym_Deas/N{}".format(str(nodes.index(edge[0])).zfill(length_nod)),
+    #                    "_to" : "Sym_Deas/N{}".format(str(nodes.index(edge[1])).zfill(length_nod)),
+    #                    "_key": 'E{}'.format(str(n).zfill(length_edg))})
+    edges_dict.append({"_from" : "Sym_Deas/"+str(edge[0]),
+                       "_to" : "Sym_Deas/"+str(edge[1]),
                        "_key": 'E{}'.format(str(n).zfill(length_edg))})
 
-with open('/home/alessandro/Dropbox/Chimera/Sym_edges_Ale.json', 'w') as fout:
+with open('../data/Sym_edges_Ale.json', 'w') as fout:
     json.dump(edges_dict , fout, ensure_ascii=False)
 
 """
