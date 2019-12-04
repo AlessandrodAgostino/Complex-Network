@@ -21,7 +21,8 @@ arangoimport --file ~/Dropbox/Chimera/Sym_nodes_Ale.json --collection Sym_Deas -
 
 """
 with open('../data/Sym_nodes_Ale.json', 'w') as fout:
-    json.dump(nodes_dict , fout, ensure_ascii=False)
+    json.dump(nodes_dict , fout, ensure_ascii=True)
+
 
 
 #%%
