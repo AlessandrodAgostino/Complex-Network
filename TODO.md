@@ -6,3 +6,4 @@
   * [ ] Study visulization options for sub graph Arango
   * [ ] Generalization of functions for different format?
   * [ ] Try to study some subnetwork
+  * [ ] Keep correcting code from traversal
