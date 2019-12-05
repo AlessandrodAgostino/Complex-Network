@@ -1,6 +1,7 @@
 from arango import ArangoClient
 import json
-from script.pythonarango import check_create_empty_collection, check_create_empty_graph, load_pass, get_vertex
+from script.pythonarango import check_create_empty_collection, check_create_empty_graph
+from script.pythonarango import load_pass, get_vertex, saveCollection
 
 # Initialize the client for ArangoDB.
 client = ArangoClient(hosts='http://127.0.0.1:8529')
@@ -35,3 +36,20 @@ graph = check_create_empty_graph(db, 'Sub_Net')
 
 if not graph.has_edge_definition('Sub_Sym_Deas_edges'):
   graph.create_edge_definition('Sub_Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
+
+filename = 'Sub_Sym_Deas_edges.json'
+saveCollection(db=db, filename=filename, name='Sub_Sym_Deas_edges') # export edges collections
+
+import networkx as nx
+
+import json
+
+with open(filename, 'rb') as f:
+  file = json.load(f)
+
+file
+
+G = nx.read_edgelist(file) # yuhuuuuu
+
+
+nx.readwrite.json_graph.dumps(G)

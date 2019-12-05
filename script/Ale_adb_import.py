@@ -11,7 +11,7 @@ graph = nx.read_gexf(path)
 nodes = list(graph.nodes())
 length_nod = round(math.log(len(nodes),10)) + 1
 
-nodes_dict = [{'name': name, '_key': 'N{}'.format(str(n).zfill(length_nod))} for n,name in enumerate(nodes)]
+nodes_dict = [{'name': name, '_key': 'N{}'.format(str(n).zfill(length_nod)), 'id' : name} for n,name in enumerate(nodes)]
 
 '''
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -23,8 +23,6 @@ with open('data/Sym_nodes_Ale.json', 'w') as fout:
     json.dump(nodes_dict , fout, ensure_ascii=False)
 
 #%%
-
-list(graph.nodes(True))[0]
 
 edges = list(graph.edges())
 length_edg = round(math.log(len(edges),10)) + 1

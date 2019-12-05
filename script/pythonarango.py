@@ -18,14 +18,14 @@ def load_pass(filename, isjson=True):
       password = password[:-1]
     return password
 
-def saveCollection(name, filename, database):
+def saveCollection(db, name, filename):
 
   if db.has_collection(name):
 
     cursor = db.collection(name).export()
+    from json import dump
     with open(filename, 'w') as file :
-      json.dump(cursor.fetch(), file)
-
+      dump(list(cursor.batch()), file)
   else :
     print(f'Collection {name} does not exist in this database')
 
@@ -140,18 +140,3 @@ if __name__ == '__main__':
 
   if not Sym_Net.has_edge_definition('astenia_edges'):
     Sym_Net.create_edge_definition('astenia_edges', ['Sym_Deas'], ['Sym_Deas'])
-
-  filename = 'Sub_Sym_Deas_edges.json'
-
-  saveCollection(database=db, filename=filename, name=filename) # export edges collections
-
-  import networkx as nx
-
-  import json
-
-  with open(filename, 'rb') as f:
-    file = json.load(f)['batch']
-
-  file = [f'{ed["_from"]} {ed["_to"]} ' + '{name : {}}'.format(ed['name']) for ed in file]
-
-  G = nx.read_edgelist(file) # yuhuuuuu
