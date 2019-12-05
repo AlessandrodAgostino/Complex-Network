@@ -35,7 +35,3 @@ graph = check_create_empty_graph(db, 'Sub_Net')
 
 if not graph.has_edge_definition('Sub_Sym_Deas_edges'):
   graph.create_edge_definition('Sub_Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
-
-#%%
-import networkx as nx
-import json
