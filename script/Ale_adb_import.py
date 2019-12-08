@@ -31,7 +31,7 @@ def read_gexf(db, filename, nodes_collection_name='nodes', edges_collection_name
     graph object of python-arango
   '''
 
-  graph      = rgexf(path)
+  graph      = rgexf(filename)
   nodes_list = list(graph.nodes())   # needed for link document creation
   graph      = node_link_data(graph) # override graph, is not usefull anymore here
 

@@ -43,7 +43,7 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
   return result
 
 # traversal
-neighbours = traverse(db=db, starting_node='bubboni',
+neighbours = traverse(db=db, starting_node='astenia',
                       nodes_collection_name='Sym_Deas', graph_name='Sym_Net',
                       direction        ='outbound',
                       item_order       ='forward',
@@ -52,7 +52,7 @@ neighbours = traverse(db=db, starting_node='bubboni',
                       vertex_uniqueness='global')
 
 # create empty
-check_create_empty_collection(db, 'Sub_Sym_Deas_edges', edge=True)
+pa.check_create_empty_collection(db, 'Sub_Sym_Deas_edges', edge=True)
 
 # From now on we select the correct edges.
 for n in neighbours['vertices']:
@@ -62,7 +62,7 @@ for n in neighbours['vertices']:
     if outgoing_node in neighbours['vertices']:
         db.collection('Sub_Sym_Deas_edges').insert(ed)
 
-graph = check_create_empty_graph(db, 'Sub_Net')
+graph = pa.check_create_empty_graph(db, 'Sub_Net')
 
 if not graph.has_edge_definition('Sub_Sym_Deas_edges'):
   graph.create_edge_definition('Sub_Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
