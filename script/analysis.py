@@ -19,18 +19,13 @@ nodes = db.graph('Sub_Net').vertex_collections()#("Sub_Sym_Deas_edges")
 cursor = edges.export()
 g = cursor.batch()
 
+# create edge list and load graph
 links = [f"{ed['source']} {ed['target']}" for ed in g]
-
-# for i in range(len(g)):
-#     links.append(str(g[i]["source"])+" "+str(g[i]["target"]))
-
 G = nx.read_edgelist(links)
-nx.draw(G)
-degree = list(G.degree())
-G.nodes(True)
 
-d = nx.degree(G)
+# add infos from Sym_Deas
+for node in G.nodes():
+  attr = pa.get_vertex(db, {'label':node}, 'Sym_Deas')
+  nx.set_node_attributes(G, {node : attr})
 
-#
-# A = nx.convert_matrix.to_numpy_matrix(G)
-# plt.imshow(A)
+# it's ffffffine

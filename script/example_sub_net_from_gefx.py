@@ -11,7 +11,7 @@ client = ArangoClient(hosts='http://127.0.0.1:8529')
 db     = client.db('_system', username='root', password=pa.load_pass('script/pwd.txt', isjson=False ))
 
 # Only if u don't have the collections
-Sym_Net = adb.read_gexf(db, filename='data/SymptomsNet.gexf',
+Sym_Net = pa.read_gexf(db, filename='data/SymptomsNet.gexf',
                         nodes_collection_name='Sym_Deas',
                         edges_collection_name='Sym_Deas_edges',
                         graph_name='Sym_Net')
