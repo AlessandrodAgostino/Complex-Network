@@ -19,18 +19,19 @@ Problems:
 
 # Initialize the client for ArangoDB. Connect to "_system" database as root user.
 client = ArangoClient(hosts='http://127.0.0.1:8529')
-db     = client.db('_system', username='root', password=pa.load_pass('script/pwd.txt', isjson=False ))
+db     = client.db('_system', 
+                   username='root', 
+                   password=pa.load_pass('script/pwd.txt', isjson=False ))
 
 # path of the file where orinal data are stored
-filename = os.path.join(os.path.dirname('__file__'), 'data', 'SymptomsNet.gexf') # in atom this is bit strange actually.
+# in atom this is bit strange actually.
+filename = os.path.join(os.path.dirname('__file__'), 'data', 'SymptomsNet.gexf') 
 
 # This function read a gexf file and create two collections (edge, node) and a graph in database db.
 Sym_Net = pa.read_gexf(db, filename=filename,
-                       nodes_collection_name='Sym_Deas',                 # create a node collection named Sym_Deas
-                       edges_collection_name='Sym_Deas_edges',           # create an edge collection named Sym_Deas_edges
-                       graph_name='Sym_Net')                             # create a graph named Sym_Net
-
-#%%
+                       nodes_collection_name='Sym_Deas',                 
+                       edges_collection_name='Sym_Deas_edges',
+                       graph_name='Sym_Net')                             
 
 # Now in the Arango web interface we have a graph and the two collections of nodes and edges.
 
