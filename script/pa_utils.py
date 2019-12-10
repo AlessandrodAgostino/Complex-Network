@@ -34,21 +34,48 @@ def saveCollection(db, name, filename):
     print(f'Collection {name} does not exist in this database')
 
 def check_create_empty_collection(db, collection_name, edge=False):
+  '''
+  Check if a collection "collection_name" exist or not. If the former is true,
+  truncate (empty) the collection, or else it will create a new one
+
+  Parameters:
+    db : Arango database, result of the function client.db of python-arango.
+    collection_name : string, Name of the collection to create.
+    edge : boolean, default False. If a collection of edge has to be created,
+      this must be set to True.
+
+  Returns:
+    python arango collection object. Empty.
+
+  '''
+
   if db.has_collection(collection_name):
     db.collection(collection_name).truncate()
+
   else :
     db.create_collection(collection_name, edge=edge)
+
   return db.collection(collection_name)
 
 def check_create_empty_graph(db, graph_name):
+  '''
+  Same as for check_create_empy_collection.
+  '''
+
   if db.has_graph(graph_name):
     db.delete_graph(graph_name)
     graph = db.create_graph(name=graph_name)
+
   else:
     graph = db.create_graph(name=graph_name)
+
   return graph
 
 def first_neighbours(db, starting_node, nodes_collection, edges_collection, resultsname, save=False):
+  '''
+  That's useless now that we work with graph and traverse, but can be used as a template
+  for future aql work.
+  '''
 
   bind_vars={
       'starting_node' : starting_node,
@@ -79,11 +106,19 @@ def first_neighbours(db, starting_node, nodes_collection, edges_collection, resu
     db.aql.execute(aql, bind_vars=bind_vars)
 
 def get_vertex(db, filter, collection_name):
-  """
-  filter : dictionary of conditions
+  '''
+  This function search an ArangoDB collection for a document that satisfy
+  filter conditions.
 
-  return: the document as dict
-  """
+  Parameters:
+    db : Arango databases, result of the function client.db of python-arango.
+    filter : python dictionary, list of conditions.
+    collection_name : string, the collection in which the reaserch is perfomed.
+
+  return:
+    a list of document (dictionaries).
+  '''
+
   return db.collection(collection_name).find(filter).next()
 
 def retrieve_unique_edges(list_of_paths):
@@ -104,9 +139,6 @@ def retrieve_unique_edges(list_of_paths):
 
   return edges
 
-
-
-
 def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
   '''
   This function is basically a wrap of the traverse function of python-arango.
@@ -126,7 +158,7 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
                  for reference.
 
   Returns:
-    Python list containing
+    Python list containing vertex and PATH crossed by the traverse.
   '''
 
   node = get_vertex(db, {'label' : f'{starting_node}'}, f'{nodes_collection_name}')
@@ -136,13 +168,10 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
 
   return result
 
-
-
-
 def read_gexf(db, filename,
-              nodes_collection_name = 'nodes',
-              edges_collection_name = 'edges',
-              graph_name = 'Net'):
+              nodes_collection_name='nodes',
+              edges_collection_name='edges',
+              graph_name='Net'):
   '''
   Creates a graph on `arangodb` from a gexf file. Requires `networkx` to be installed.
 
@@ -164,7 +193,8 @@ def read_gexf(db, filename,
   Returns:
     graph object of python-arango
   '''
-  #Is it correct to perform the import here? is it better to do it at script's top?
+
+  # Is it correct to perform the import here? is it better to do it at script's top?
   from networkx import read_gexf as rgexf
   from networkx.readwrite import node_link_data
   from math import log, ceil
@@ -175,16 +205,14 @@ def read_gexf(db, filename,
 
   # Number of digit needed for counting the nodes:
   format_len_node = ceil(log(len(graph['nodes']),10))
+
   # Number of digit needed for counting the links:
   format_len_link = ceil(log(len(graph['links']),10))
 
   # Adding required '_key' attribute for Arango managing
   for n,node in enumerate(graph['nodes']):
-    # node['_key'] = 'N{n:{fill}{width}}'.format(n=n, fill='0', width=format_len_node)
-    #Padding in format N0001, with style
-    # the line above doesn't work for python 3.6 (RICHI ARGH), so:
-    node['_key'] = 'N{}'.format(str(n).zfill(format_len_node))
-
+    node['_key'] = f'N{n:{0}{format_len_node}}'
+    
   # Adding required '_key', '_to', '_from' attribute for Arango managing
   for n,link in enumerate(graph['links']):
     link['_key']  = 'E{}'.format(str(n).zfill(format_len_link))
@@ -203,5 +231,4 @@ def read_gexf(db, filename,
   Net = check_create_empty_graph(db=db, graph_name=graph_name)
   Net.create_edge_definition(edges_collection_name, [nodes_collection_name], [nodes_collection_name])
 
-  #Return a graph according to the python-arango API
   return Net
