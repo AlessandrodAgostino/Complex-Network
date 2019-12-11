@@ -1,13 +1,14 @@
 """
 Some utilities based on python-arango written by us.
 """
+import json
 
 def load_pass(filename, isjson=True):
   '''
   load password from a json file formatted like :
   {
-    "host" : "http://127.0.0.1:8529"
-    "username" : "root"
+    "host" : "http://127.0.0.1:8529",
+    "username" : "root",
     "password" : "1234"
   }
   '''
@@ -216,12 +217,15 @@ def read_gexf(db, filename,
   # Adding required '_key' attribute for Arango managing
   for n,node in enumerate(graph['nodes']):
     #node['_key'] = f'N{n:{0}{format_len_node}}'
-    node["_key"] =
+    node["_key"] = node["id"]
   # Adding required '_key', '_to', '_from' attribute for Arango managing
   for n,link in enumerate(graph['links']):
     link['_key']  = 'E{}'.format(str(n).zfill(format_len_link))
-    link['_to']   = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['target'])).zfill(format_len_node))
-    link['_from'] = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['source'])).zfill(format_len_node))
+    
+    #link['_to']   = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['target'])).zfill(format_len_node))
+    #link['_from'] = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['source'])).zfill(format_len_node))
+    link["_to"] = "{}/".format(nodes_collection_name)+link["target"]
+    link["_from"] = "{}/".format(nodes_collection_name)+link["source"]
 
   # Create nodes collection and insert all the nodes in the net
   Sym_Deas = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
@@ -242,6 +246,10 @@ if __name__ == "__main__":
   import networkx as nx
   from arango import ArangoClient
   client = ArangoClient(hosts='http://127.0.0.1:8529')
-  db     = client.db('_system', username='root', password=pa.load_pass('script/pwd.txt', isjson=False ))
+  db     = client.db('_system', username='root', password=load_pass('script/pwd.txt', isjson=False ))
 
-  read_gexf()
+ # This function read a gexf file and create two collections (edge, node) and a graph in database db.
+  Sym_Net, Nx_Net = read_gexf(db, filename="data/SymptomsNet.gexf",
+                        nodes_collection_name='Sym_Deas',
+                        edges_collection_name='Sym_Deas_edges',
+                        graph_name='Sym_Net')
