@@ -6,15 +6,18 @@ def load_pass(filename, isjson=True):
   '''
   load password from a json file formatted like :
   {
+    "host" : "http://127.0.0.1:8529"
     "username" : "root"
     "password" : "1234"
   }
   '''
   if isjson:
     with open(filename) as f:
-      doc      = json.load(f)
-      password = doc['password']
-    return password
+      doc = json.load(f)
+      h = doc['host']
+      u = doc['username']
+      p = doc['password']
+    return h, u, p
 
   else:
     with open(filename) as f:
@@ -212,8 +215,8 @@ def read_gexf(db, filename,
 
   # Adding required '_key' attribute for Arango managing
   for n,node in enumerate(graph['nodes']):
-    node['_key'] = f'N{n:{0}{format_len_node}}'
-
+    #node['_key'] = f'N{n:{0}{format_len_node}}'
+    node["_key"] =
   # Adding required '_key', '_to', '_from' attribute for Arango managing
   for n,link in enumerate(graph['links']):
     link['_key']  = 'E{}'.format(str(n).zfill(format_len_link))
@@ -233,3 +236,12 @@ def read_gexf(db, filename,
   Net.create_edge_definition(edges_collection_name, [nodes_collection_name], [nodes_collection_name])
 
   return Net, nx_graph
+
+if __name__ == "__main__":
+
+  import networkx as nx
+  from arango import ArangoClient
+  client = ArangoClient(hosts='http://127.0.0.1:8529')
+  db     = client.db('_system', username='root', password=pa.load_pass('script/pwd.txt', isjson=False ))
+
+  read_gexf()
