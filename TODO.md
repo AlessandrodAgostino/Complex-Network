@@ -5,5 +5,5 @@
   * [ ] Performance study for arangodb query.
   * [x] config file for host, username, pass. **IN GITIGNORE**.
   * [ ] Try to study some subnetwork.
-  * [ ] Try to produe a usable package/repository.
+  * [x] Try to produe a usable package/repository.
   * [ ] Make code as simple as possible.

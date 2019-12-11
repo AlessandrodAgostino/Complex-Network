@@ -3,13 +3,13 @@ import os
 from arango import ArangoClient
 import networkx as nx
 
-import script.pa_utils as pa
+from near import pa_utils as pa
 
 '''
 This file is a summary of what we are able to do by now:
   - load gexf file into networkx.
   - create two collections (edge, node) and a graph in any arango database for any user.
-  - perform a query (traverse) on the graph (in arangodb from python) 
+  - perform a query (traverse) on the graph (in arangodb from python)
     and select a sub-set of vertices.
   - create the sub network containing this subset.
   - export the sub network and load it into networkx (or whathever) for python analysis.
@@ -30,7 +30,7 @@ db     = client.db('_system', username=username, password=password)
 # in atom this is bit strange actually.
 filename = os.path.join(os.path.dirname('__file__'), 'data', 'SymptomsNet.gexf')
 
-# This function read a gexf file and create two 
+# This function read a gexf file and create two
 # collections (edge, node) and a graph in database db.
 Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,
                        nodes_collection_name='Sym_Deas',
@@ -49,7 +49,7 @@ astenia_first_neighbours = pa.traverse(db=db, starting_node='astenia',
                                        max_depth=1,
                                        vertex_uniqueness='global')
 
-# Now we have a dict of the first neighbours of astenia and all the paths which 
+# Now we have a dict of the first neighbours of astenia and all the paths which
 # reach that neighbour
 
 # Build the Sub_Net in networkx easy peasy
@@ -97,5 +97,5 @@ for node in G.nodes():
   attr = pa.get_vertex(db, {'label':node}, 'Sym_Deas')
   nx.set_node_attributes(G, {node : attr})
 
-# Now we have a networkx (Sub) Graph object with all the informations stored 
+# Now we have a networkx (Sub) Graph object with all the informations stored
 # in the arangodb collection

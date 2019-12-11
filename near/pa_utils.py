@@ -7,9 +7,9 @@ def load_pass(filename, isjson=True):
   '''
   load password from a json file formatted like :
   {
-    "host" : "http://127.0.0.1:8529",
-    "username" : "root",
-    "password" : "1234"
+    "host" : "Local host available port",
+    "username" : "your username",
+    "password" : "your password"
   }
   '''
   if isjson:
