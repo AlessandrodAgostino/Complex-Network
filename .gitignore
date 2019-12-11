@@ -125,5 +125,6 @@ venv.bak/
 [Dd]ata/
 .hypothesis/
 
-#pythonarango
+# configuration files
 script/pwd.txt
+config.json
