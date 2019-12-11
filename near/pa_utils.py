@@ -240,20 +240,3 @@ def read_gexf(db, filename,
   Net.create_edge_definition(edges_collection_name, [nodes_collection_name], [nodes_collection_name])
 
   return Net, nx_graph
-
-if __name__ == "__main__":
-
-  import networkx as nx
-  from arango import ArangoClient
-  client = ArangoClient(hosts='http://127.0.0.1:8529')
-  db     = client.db('_system', username='root', password=load_pass('script/pwd.txt', isjson=False ))
-
- # This function read a gexf file and create two collections (edge, node) and a graph in database db.
-  Sym_Net, Nx_Net = read_gexf(db, filename="data/SymptomsNet.gexf",
-                        nodes_collection_name='Sym_Deas',
-                        edges_collection_name='Sym_Deas_edges',
-                        graph_name='Sym_Net')
-
-  # nx_graph   = rgexf("data/SymptomsNet.gexf")
-  # nx_graph.nodes()
-  
