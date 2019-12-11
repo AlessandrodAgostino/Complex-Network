@@ -14,8 +14,8 @@ except ImportError:
   from distutils.core import find_packages
 
 
-from NumPyNet.build import get_requires
-from NumPyNet.build import read_description
+from near.build import get_requires
+from near.build import read_description
 
 here = os.path.abspath(os.path.dirname(__file__))
 
