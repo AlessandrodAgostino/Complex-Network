@@ -192,6 +192,7 @@ def read_gexf(db, filename,
 
   Returns:
     graph object of python-arango
+    graph object of networkx
   '''
 
   # Is it correct to perform the import here? is it better to do it at script's top?
@@ -199,9 +200,9 @@ def read_gexf(db, filename,
   from networkx.readwrite import node_link_data
   from math import log, ceil
 
-  graph      = rgexf(filename)
-  nodes_list = list(graph.nodes())   # needed for link document creation
-  graph      = node_link_data(graph) # override graph, is not usefull anymore here
+  nx_graph   = rgexf(filename)
+  nodes_list = list(nx_graph.nodes())   # needed for link document creation
+  graph      = node_link_data(nx_graph)
 
   # Number of digit needed for counting the nodes:
   format_len_node = ceil(log(len(graph['nodes']),10))
@@ -212,7 +213,7 @@ def read_gexf(db, filename,
   # Adding required '_key' attribute for Arango managing
   for n,node in enumerate(graph['nodes']):
     node['_key'] = f'N{n:{0}{format_len_node}}'
-    
+
   # Adding required '_key', '_to', '_from' attribute for Arango managing
   for n,link in enumerate(graph['links']):
     link['_key']  = 'E{}'.format(str(n).zfill(format_len_link))
@@ -231,4 +232,4 @@ def read_gexf(db, filename,
   Net = check_create_empty_graph(db=db, graph_name=graph_name)
   Net.create_edge_definition(edges_collection_name, [nodes_collection_name], [nodes_collection_name])
 
-  return Net
+  return Net, nx_graph

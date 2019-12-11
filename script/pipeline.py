@@ -11,28 +11,27 @@ This file is a summary of what we are able to do by now:
   - perform a query (traverse) on the graph (in arangodb from python) and select a sub-set of vertices.
   - create the sub network containing this subset.
   - export the sub network and load it into networkx (or whathever) for python analysis.
-  
+
 Problems:
   - The sub-net creation algorithm (the double for in the end) is a bit slow.
-  - The sub-net visualization take all the vertices, so is not immediately centered. 
+  - The sub-net visualization take all the vertices, so is not immediately centered.
 '''
 
 # Initialize the client for ArangoDB. Connect to "_system" database as root user.
 client = ArangoClient(hosts='http://127.0.0.1:8529')
-db     = client.db('_system', 
-                   username='root', 
+db     = client.db('_system',
+                   username='root',
                    password=pa.load_pass('script/pwd.txt', isjson=False ))
 
 # path of the file where orinal data are stored
 # in atom this is bit strange actually.
-filename = os.path.join(os.path.dirname('__file__'), 'data', 'SymptomsNet.gexf') 
+filename = os.path.join(os.path.dirname('__file__'), 'data', 'SymptomsNet.gexf')
 
 # This function read a gexf file and create two collections (edge, node) and a graph in database db.
-Sym_Net = pa.read_gexf(db, filename=filename,
-                       nodes_collection_name='Sym_Deas',                 
+Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,
+                       nodes_collection_name='Sym_Deas',
                        edges_collection_name='Sym_Deas_edges',
-                       graph_name='Sym_Net')                             
-
+                       graph_name='Sym_Net')
 # Now in the Arango web interface we have a graph and the two collections of nodes and edges.
 
 # Extract a subnet from the graph with a graph traverse of python-arango
