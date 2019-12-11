@@ -217,15 +217,15 @@ def read_gexf(db, filename,
   # Adding required '_key' attribute for Arango managing
   for n,node in enumerate(graph['nodes']):
     #node['_key'] = f'N{n:{0}{format_len_node}}'
-    node["_key"] = node["id"]
+    node["_key"] = unidecode.unidecode(node["id"])
   # Adding required '_key', '_to', '_from' attribute for Arango managing
   for n,link in enumerate(graph['links']):
     link['_key']  = 'E{}'.format(str(n).zfill(format_len_link))
-    
+
     #link['_to']   = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['target'])).zfill(format_len_node))
     #link['_from'] = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['source'])).zfill(format_len_node))
-    link["_to"] = "{}/".format(nodes_collection_name)+link["target"]
-    link["_from"] = "{}/".format(nodes_collection_name)+link["source"]
+    link["_to"] = "{}/".format(nodes_collection_name)+unidecode.unidecode(link["target"])
+    link["_from"] = "{}/".format(nodes_collection_name)+unidecode.unidecode(link["source"])
 
   # Create nodes collection and insert all the nodes in the net
   Sym_Deas = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
@@ -253,3 +253,7 @@ if __name__ == "__main__":
                         nodes_collection_name='Sym_Deas',
                         edges_collection_name='Sym_Deas_edges',
                         graph_name='Sym_Net')
+
+  # nx_graph   = rgexf("data/SymptomsNet.gexf")
+  # nx_graph.nodes()
+  
