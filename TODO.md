@@ -1,7 +1,9 @@
-#### List of thing someone should do:
+#### In order of priority, list of thing someone should do:
 
-  * [x] import to networkx from JSON (or from any other format)
-  * [ ] Study visulization options for sub graph Arango
-  * [ ] Generalization of functions for different format?
-  * [ ] Try to study some subnetwork
-  * [ ] Keep correcting code from traversal
+  * [ ] Use networkx sub_graph.
+  * [ ] Encoding utf8.
+  * [ ] Performance study for arangodb query.
+  * [ ] config file for host, username, pass. **IN GITIGNORE**.
+  * [ ] Try to study some subnetwork.
+  * [ ] Try to produe a usable package/repository.
+  * [ ] Make code as simple as possible.
