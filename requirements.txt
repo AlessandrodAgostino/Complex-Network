@@ -2,3 +2,4 @@ networkx
 pytest
 hypothesis
 python-arango
+unidecode

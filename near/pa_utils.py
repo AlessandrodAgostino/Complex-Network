@@ -1,7 +1,14 @@
 """
 Some utilities based on python-arango written by us.
 """
+import os
 import json
+
+from networkx import read_gexf as rgexf
+from networkx.readwrite import node_link_data
+import unidecode
+
+from math import log, ceil
 
 def load_pass(filename, isjson=True):
   '''
@@ -12,6 +19,9 @@ def load_pass(filename, isjson=True):
     "password" : "your password"
   }
   '''
+  
+  filename = os.path.join(os.path.dirname('__file__'), '..', filename)  
+  
   if isjson:
     with open(filename) as f:
       doc = json.load(f)
@@ -172,6 +182,45 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
 
   return result
 
+def nx_to_arango(node_link_data, nodes_collection_name):
+  '''
+  This function accept data in node_link_data format (networkx) and
+  returns the same data ready to be loaded on arangodb.
+  '''
+  
+  # Number of digit needed for counting the links:
+  format_len_link = ceil(log(len(node_link_data['links']),10))
+
+  # Adding required '_key' attribute for Arango managing
+  for node in node_link_data['nodes']:
+    node['_key'] = unidecode.unidecode(str(node['id']))
+
+  # Adding required '_key', '_to', '_from' attribute for Arango managing
+  for n,link in enumerate(node_link_data['links']):
+    link['_key']  = f'E{n:{0}{format_len_link}}'
+    link['_to']   = f'{nodes_collection_name}/' + unidecode.unidecode(str(link['target']))
+    link['_from'] = f'{nodes_collection_name}/' + unidecode.unidecode(str(link['source']))
+
+  return node_link_data
+
+def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection_name, graph_name):
+  '''
+  
+  '''
+  # Create nodes collection and insert all the nodes in the net
+  nodes_collection = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
+  nodes_collection.insert_many(node_link_data['nodes'])
+
+  # Create links collection and insert all the edges in the net
+  edges_collection = check_create_empty_collection(db=db, collection_name=edges_collection_name, edge=True)
+  edges_collection.insert_many(node_link_data['links'])
+
+  # Directly create the graph and add egde collection
+  net = check_create_empty_graph(db=db, graph_name=graph_name)
+  net.create_edge_definition(edges_collection_name, [nodes_collection_name], [nodes_collection_name])
+
+  return net
+
 def read_gexf(db, filename,
               nodes_collection_name='nodes',
               edges_collection_name='edges',
@@ -179,8 +228,7 @@ def read_gexf(db, filename,
   '''
   Creates a graph on `arangodb` from a gexf file. Requires `networkx` to be installed.
 
-  Read the graph with the function `read_gexf` of `networkx` and generates a json formatted with
-  `node_link_data`, containing
+  Read the graph with the function `read_gexf` of `networkx` and generates [...]
 
   Parameters:
     db       : Arango databases, result of the function client.db of python-arango
@@ -199,44 +247,15 @@ def read_gexf(db, filename,
     graph object of networkx
   '''
 
-  # Is it correct to perform the import here? is it better to do it at script's top?
-  from networkx import read_gexf as rgexf
-  from networkx.readwrite import node_link_data
-  from math import log, ceil
-
   nx_graph   = rgexf(filename)
-  nodes_list = list(nx_graph.nodes())   # needed for link document creation
   graph      = node_link_data(nx_graph)
-
-  # Number of digit needed for counting the nodes:
-  format_len_node = ceil(log(len(graph['nodes']),10))
-
-  # Number of digit needed for counting the links:
-  format_len_link = ceil(log(len(graph['links']),10))
-
-  # Adding required '_key' attribute for Arango managing
-  for n,node in enumerate(graph['nodes']):
-    #node['_key'] = f'N{n:{0}{format_len_node}}'
-    node["_key"] = unidecode.unidecode(node["id"])
-  # Adding required '_key', '_to', '_from' attribute for Arango managing
-  for n,link in enumerate(graph['links']):
-    link['_key']  = 'E{}'.format(str(n).zfill(format_len_link))
-
-    #link['_to']   = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['target'])).zfill(format_len_node))
-    #link['_from'] = '{}/N{}'.format(nodes_collection_name,str(nodes_list.index(link['source'])).zfill(format_len_node))
-    link["_to"] = "{}/".format(nodes_collection_name)+unidecode.unidecode(link["target"])
-    link["_from"] = "{}/".format(nodes_collection_name)+unidecode.unidecode(link["source"])
-
-  # Create nodes collection and insert all the nodes in the net
-  Sym_Deas = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
-  Sym_Deas.insert_many(graph['nodes'])
-
-  # Create links collection and inser all the edges in the net
-  Sym_Deas_edges = check_create_empty_collection(db=db, collection_name=edges_collection_name, edge=True)
-  Sym_Deas_edges.insert_many(graph['links'])
-
-  # Directly create the graph and add egde collection
-  Net = check_create_empty_graph(db=db, graph_name=graph_name)
-  Net.create_edge_definition(edges_collection_name, [nodes_collection_name], [nodes_collection_name])
-
+  
+  # add _key, _to and _for, for ArangoDB 
+  graph = nx_to_arango(graph)
+  Net   = export_to_arango(db, 
+                           graph,
+                           nodes_collection_name,
+                           edges_collection_name,
+                           graph_name)
+  
   return Net, nx_graph
