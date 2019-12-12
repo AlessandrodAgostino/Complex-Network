@@ -19,9 +19,9 @@ def load_pass(filename, isjson=True):
     "password" : "your password"
   }
   '''
-  
-  filename = os.path.join(os.path.dirname('__file__'), '..', filename)  
-  
+
+  filename = os.path.join(os.path.dirname('__file__'), ".", filename)
+
   if isjson:
     with open(filename) as f:
       doc = json.load(f)
@@ -175,7 +175,7 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
     Python list containing vertex and PATH crossed by the traverse.
   '''
 
-  node = get_vertex(db, {'label' : f'{starting_node}'}, f'{nodes_collection_name}')
+  node = get_vertex(db, {'id' : starting_node}, nodes_collection_name)
   Net  = db.graph(graph_name)
 
   result = Net.traverse(node, **kwargs)
@@ -187,7 +187,7 @@ def nx_to_arango(node_link_data, nodes_collection_name):
   This function accept data in node_link_data format (networkx) and
   returns the same data ready to be loaded on arangodb.
   '''
-  
+
   # Number of digit needed for counting the links:
   format_len_link = ceil(log(len(node_link_data['links']),10))
 
@@ -205,7 +205,7 @@ def nx_to_arango(node_link_data, nodes_collection_name):
 
 def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection_name, graph_name):
   '''
-  
+
   '''
   # Create nodes collection and insert all the nodes in the net
   nodes_collection = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
@@ -249,13 +249,13 @@ def read_gexf(db, filename,
 
   nx_graph   = rgexf(filename)
   graph      = node_link_data(nx_graph)
-  
-  # add _key, _to and _for, for ArangoDB 
+
+  # add _key, _to and _for, for ArangoDB
   graph = nx_to_arango(graph)
-  Net   = export_to_arango(db, 
+  Net   = export_to_arango(db,
                            graph,
                            nodes_collection_name,
                            edges_collection_name,
                            graph_name)
-  
+
   return Net, nx_graph

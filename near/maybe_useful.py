@@ -1,13 +1,12 @@
 from arango import ArangoClient
 import json
-
+import near.pa_utils as pa
 #%%
 # Initialize the client for ArangoDB.
 client = ArangoClient(hosts='http://127.0.0.1:8529')
 
 # Connect to "_system" database as root user.
-db = client.db('_system', username='root', password=load_pass('script/pwd.txt', isjson=False ))
-
+db = client.db('_system', username='root', password=pa.load_pass('near/pwd.txt', isjson=False ))
 if db.has_graph('Sym_Net'):
     Sym_Net = db.graph('Sym_Net')
 else: Sym_Net = db.create_graph(name='Sym_Net')
