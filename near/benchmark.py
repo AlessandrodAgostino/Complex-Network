@@ -11,10 +11,13 @@ import random as rng
 # the network?
 
 # Parameters
-N    = 10
-P    = 0.7
-SEED = 123
-MAX_N = 10
+N     = 10
+P     = 0.7
+SEED  = 123
+MIN_N = 100
+MAX_N = 110
+STEP  = 1
+ITER  = 5
 
 # Naming
 nodes_collection_name = 'timing'
@@ -28,31 +31,48 @@ db     = client.db('_system', username=username, password=password)
 
 # There are infinite function for Graph Generations in Networkx, I chose the
 # one with the catchier name.
-time = []
-interval = range(2, MAX_N)
-for N in interval:
 
-    graph     = nx.generators.fast_gnp_random_graph(n=N,
-                                                    p=P,
-                                                    seed=SEED,
-                                                    directed=False)
-    node_link = nx.readwrite.node_link_data(graph)
-    node_link = pa.nx_to_arango(node_link, nodes_collection_name)
 
-    timing_net = pa.export_to_arango(db, node_link,
-                                     nodes_collection_name,
-                                     edges_collection_name,
-                                     graph_name)
-    node = rng.randint(0,N-1)
-    type(node)
-    print(node)
-    tic = now()
-    first_neighbours = pa.traverse(db,node, nodes_collection_name, graph)
-    toc = now()
-    time.append(toc-tic)
-#%%
+filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'timing_0_1.npy')
+open(filename, 'w').close() # empty the timing file for testing DANGEROUS
 
-time
+times = []
 
-pa.get_vertex(db,{"id": 0},"timing")
-{'id' : starting_node}
+for N in range(MIN_N, MAX_N, STEP):
+
+  print(N)
+
+  graph = nx.generators.fast_gnp_random_graph(n=N,
+                                              p=P,
+                                              seed=SEED,
+                                              directed=False)
+
+  node_link = nx.readwrite.node_link_data(graph)
+  node_link = pa.nx_to_arango(node_link, nodes_collection_name)
+
+  timing_net = pa.export_to_arango(db, node_link,
+                                   nodes_collection_name,
+                                   edges_collection_name,
+                                   graph_name)
+
+  time = []
+  for _ in range(ITER):
+
+      node = rng.randint(0,N-1)
+
+      tic = now()
+      pa.traverse(db=db, starting_node=node,
+                   nodes_collection_name=nodes_collection_name,
+                   graph_name=graph_name,
+                   direction='outbound',
+                   item_order='forward',
+                   min_depth=0,
+                   max_depth=1,
+                   vertex_uniqueness='global')
+      toc = now()
+      time.append(toc-tic)
+
+  times.append(time)
+  np.save(filename, times)
+
+# ok it's working as I want.

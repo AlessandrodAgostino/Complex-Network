@@ -19,9 +19,9 @@ def load_pass(filename, isjson=True):
     "password" : "your password"
   }
   '''
-
-  filename = os.path.join(os.path.dirname('__file__'), ".", filename)
-
+  
+  filename = os.path.join(os.path.dirname('__file__'), '..', filename)
+  
   if isjson:
     with open(filename) as f:
       doc = json.load(f)
@@ -73,7 +73,7 @@ def check_create_empty_collection(db, collection_name, edge=False):
 
 def check_create_empty_graph(db, graph_name):
   '''
-  Same as for check_create_empy_collection.
+  Same as for check_create_empty_collection.
   '''
 
   if db.has_graph(graph_name):
@@ -87,8 +87,8 @@ def check_create_empty_graph(db, graph_name):
 
 def first_neighbours(db, starting_node, nodes_collection, edges_collection, resultsname, save=False):
   '''
-  That's useless now that we work with graph and traverse, but can be used as a template
-  for future aql work.
+  That's useless now that we work with graph and traverse, 
+  but can be used as a template for future aql work.
   '''
 
   bind_vars={
@@ -160,7 +160,8 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
 
   Parameters :
     db : Arango databases, result of the function client.db of python-arango
-    starting_node : string, name of the starting node from which the travers starts.
+    starting_node : id of the starting node from which the traverse starts. It
+                    can be any type, but the document must have an 'id' key.
     nodes_collection_name : string, name of the collection of nodes from which the
                             informations on "starting_node" are taken.
     graph_name : string, name of the graph in which the traverse is performed.
@@ -205,7 +206,7 @@ def nx_to_arango(node_link_data, nodes_collection_name):
 
 def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection_name, graph_name):
   '''
-
+  
   '''
   # Create nodes collection and insert all the nodes in the net
   nodes_collection = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
