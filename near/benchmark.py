@@ -12,10 +12,10 @@ import random as rng
 
 # Parameters
 N     = 10
-P     = 0.7
+P     = 0.5
 SEED  = 123
 MIN_N = 2
-MAX_N = 602
+MAX_N = 2002
 STEP  = 50
 ITER  = 5
 
@@ -40,7 +40,7 @@ times = []
 
 for N in range(MIN_N, MAX_N, STEP):
 
-  print(N)
+  print(N, end = "\r")
 
   graph = nx.generators.fast_gnp_random_graph(n=N,
                                               p=P,
