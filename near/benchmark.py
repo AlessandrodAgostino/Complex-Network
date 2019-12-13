@@ -14,9 +14,9 @@ import random as rng
 N     = 10
 P     = 0.7
 SEED  = 123
-MIN_N = 100
-MAX_N = 110
-STEP  = 1
+MIN_N = 2
+MAX_N = 602
+STEP  = 50
 ITER  = 5
 
 # Naming
@@ -75,4 +75,13 @@ for N in range(MIN_N, MAX_N, STEP):
   times.append(time)
   np.save(filename, times)
 
-# ok it's working as I want.
+data = np.load(filename)
+
+import matplotlib.pyplot as plt
+
+mean  = data.mean(axis=1)
+stdev = data.std(axis=1)
+
+plt.plot(range(MIN_N, MAX_N, STEP), mean)
+plt.fill_between(mean+stdev, mean-stdev, alpha=0.5)
+plt.show()
