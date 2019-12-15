@@ -15,8 +15,8 @@ This file is a summary of what we are able to do by now:
   - export the sub network and load it into networkx (or whathever) for python analysis.
 
 Problems:
-  - The sub-net creation algorithm (the double for in the end) is a bit slow.
-  - The sub-net visualization take all the vertices, so is not immediately centered.
+  - The sub-net creation algorithm (the double for in the end) is a bit slow. (Solved with newtorkx Sub-Graph)
+  - The sub-net visualization take all the vertices, so is not immediately centered. (Kind Solved with Sub-Graph)
 '''
 
 host, username, password = pa.load_pass(filename='config.json')
@@ -28,7 +28,7 @@ db     = client.db('_system', username=username, password=password)
 #%%
 # path of the file where orinal data are stored
 # in atom this is bit strange actually.
-filename = os.path.join(os.path.dirname('__file__'), 'data', 'SymptomsNet.gexf')
+filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'SymptomsNet.gexf')
 
 # This function read a gexf file and create two
 # collections (edge, node) and a graph in database db.
@@ -55,7 +55,9 @@ astenia_first_neighbours = pa.traverse(db=db, starting_node='astenia',
 # Build the Sub_Net in networkx easy peasy
 Nx_Sub_Net = Nx_Net.subgraph([vertex['label'] for vertex in astenia_first_neighbours['vertices']])
 
-#%%
+# this sub net can be loaded into arango with some adjustment.
+
+################### Keep this code as it is, may comes in handy later ############################################
 
 # create empty collection for the subnet
 pa.check_create_empty_collection(db, 'Sub_Sym_Deas_edges', edge=True)

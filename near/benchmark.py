@@ -42,7 +42,7 @@ times = []
 
 for N in range(MIN_N, MAX_N, STEP):
 
-  print(N, end = "\r")
+  print(N, end='\r')
 
   graph = nx.generators.fast_gnp_random_graph(n=N,
                                               p=P,

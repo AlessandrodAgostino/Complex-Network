@@ -19,9 +19,9 @@ def load_pass(filename, isjson=True):
     "password" : "your password"
   }
   '''
-  
+
   filename = os.path.join(os.path.dirname('__file__'), '..', filename)
-  
+
   if isjson:
     with open(filename) as f:
       doc = json.load(f)
@@ -87,7 +87,7 @@ def check_create_empty_graph(db, graph_name):
 
 def first_neighbours(db, starting_node, nodes_collection, edges_collection, resultsname, save=False):
   '''
-  That's useless now that we work with graph and traverse, 
+  That's useless now that we work with graph and traverse,
   but can be used as a template for future aql work.
   '''
 
@@ -134,24 +134,6 @@ def get_vertex(db, filter, collection_name):
   '''
 
   return db.collection(collection_name).find(filter).next()
-
-def retrieve_unique_edges(list_of_paths):
-  '''
-  list_of_path is a very particular list.
-  Result of the traversal function of python-arango, the list of path precisely.
-  '''
-
-  path_number = len(list_of_paths)
-  edges = []
-
-  for i in range(path_number):
-    path = list_of_paths[i]['edges']
-
-    for j in range(len(path)):
-      if path[j] not in edges:
-        edges.append(path[j])
-
-  return edges
 
 def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
   '''
@@ -206,7 +188,9 @@ def nx_to_arango(node_link_data, nodes_collection_name):
 
 def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection_name, graph_name):
   '''
-  
+  node_link_data parameter is a modified version,
+  containings _key, _to and _from keywords in the dictionaries. As returned from
+  nx_to_arango()
   '''
   # Create nodes collection and insert all the nodes in the net
   nodes_collection = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
@@ -249,10 +233,11 @@ def read_gexf(db, filename,
   '''
 
   nx_graph   = rgexf(filename)
+  # this thing actually doubles the used RAM, it could be better to remove it.
   graph      = node_link_data(nx_graph)
 
   # add _key, _to and _for, for ArangoDB
-  graph = nx_to_arango(graph)
+  graph = nx_to_arango(graph, nodes_collection_name)
   Net   = export_to_arango(db,
                            graph,
                            nodes_collection_name,
