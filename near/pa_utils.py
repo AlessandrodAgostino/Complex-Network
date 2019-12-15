@@ -172,7 +172,7 @@ def nx_to_arango(node_link_data, nodes_collection_name):
   '''
 
   # Number of digit needed for counting the links:
-  format_len_link = ceil(log(len(node_link_data['links']),10))
+  format_len_link = ceil(log(len(node_link_data['links']), 10))
 
   # Adding required '_key' attribute for Arango managing
   for node in node_link_data['nodes']:
@@ -236,7 +236,7 @@ def read_gexf(db, filename,
   # this thing actually doubles the used RAM, it could be better to remove it.
   graph      = node_link_data(nx_graph)
 
-  # add _key, _to and _for, for ArangoDB
+  # add _key, _to and _from, for ArangoDB
   graph = nx_to_arango(graph, nodes_collection_name)
   Net   = export_to_arango(db,
                            graph,

@@ -55,9 +55,33 @@ astenia_first_neighbours = pa.traverse(db=db, starting_node='astenia',
 # Build the Sub_Net in networkx easy peasy
 Nx_Sub_Net = Nx_Net.subgraph([vertex['label'] for vertex in astenia_first_neighbours['vertices']])
 
-# this sub net can be loaded into arango with some adjustment.
+# This is missing data from arangodb ofc
+# Nx_Sub_Net.nodes(data=True)
 
-################### Keep this code as it is, may comes in handy later ############################################
+# With this we append the data from Sym_Deas
+for node in Nx_Sub_Net:
+  attr = pa.get_vertex(db, {'label':node}, 'Sym_Deas')
+  nx.set_node_attributes(Nx_Sub_Net, {node : attr})
+
+# in fact:
+# for _, data in Nx_Sub_Net.nodes(data=True):
+#   print(data)
+
+# now we need to create arangodb collections friendly data.
+# for now, I probably need to node_link_data: (Memory problems ofc)
+
+sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
+
+# from this, it's easy to create a sub coll of nodes and link:
+
+sub_net = pa.nx_to_arango(sub_net, 'Sub_Net')
+
+# now loading into arangodb.
+
+Sub_Net = pa.export_to_arango(db, sub_net ,'Sub_Net', 'Sub_Net_edges', 'Sub_Graph')
+
+
+################### Keep this code as it is, may comes in handy later #########
 
 # create empty collection for the subnet
 pa.check_create_empty_collection(db, 'Sub_Sym_Deas_edges', edge=True)
