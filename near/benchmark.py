@@ -12,12 +12,12 @@ import random as rng
 
 # Parameters
 N     = 10
-P     = 0.5
+P     = 0.0075
 SEED  = 123
-MIN_N = 2
-MAX_N = 2002
+MIN_N = 100
+MAX_N = 8000
 STEP  = 50
-ITER  = 5
+ITER  = 10
 
 # Naming
 nodes_collection_name = 'timing'
@@ -34,6 +34,8 @@ db     = client.db('_system', username=username, password=password)
 
 
 filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'timing_0_1.npy')
+
+
 open(filename, 'w').close() # empty the timing file for testing DANGEROUS
 
 times = []
@@ -57,11 +59,11 @@ for N in range(MIN_N, MAX_N, STEP):
 
   time = []
   for _ in range(ITER):
-
-      node = rng.randint(0,N-1)
+      # random starting node
+      starting_node = rng.randint(0,N-1)
 
       tic = now()
-      pa.traverse(db=db, starting_node=node,
+      pa.traverse(db=db, starting_node=starting_node,
                    nodes_collection_name=nodes_collection_name,
                    graph_name=graph_name,
                    direction='outbound',
@@ -82,6 +84,9 @@ import matplotlib.pyplot as plt
 mean  = data.mean(axis=1)
 stdev = data.std(axis=1)
 
+stdev.shape
+mean.shape
+
 plt.plot(range(MIN_N, MAX_N, STEP), mean)
-plt.fill_between(mean+stdev, mean-stdev, alpha=0.5)
+plt.fill_between(range(MIN_N, MAX_N-2, STEP), mean+stdev, mean-stdev, alpha=0.5)
 plt.show()
