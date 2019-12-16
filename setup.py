@@ -14,14 +14,14 @@ except ImportError:
   from distutils.core import find_packages
 
 
-from near.build import get_requires
-from near.build import read_description
+from neaar.build import get_requires
+from neaar.build import read_description
 
 here = os.path.abspath(os.path.dirname(__file__))
 
 # Package data
-NAME = 'near'
-DESCRIPTION = 'NEtwork analysis in ARangoDB'
+NAME = 'neaar'
+DESCRIPTION = 'NEtwork Analysis in ARangoDB'
 URL = 'https://github.com/AlessandrodAgostino/Complex-Network'
 EMAIL = ['alessadrdagostino2@studio.unibo.it', 'mattia.ceccarelli3@studio.unibo.it', 'riccardo.scheda@studio.unibo.it']
 AUTHOR = ["Alessandro d'Agostino", 'Mattia Ceccarelli', 'Riccardo Scheda']
@@ -31,7 +31,7 @@ KEYWORDS = 'complex-networks net data-science arangodb data-analysis'
 
 README_FILENAME = os.path.join(here, 'README.md')
 REQUIREMENTS_FILENAME = os.path.join(here, 'requirements.txt')
-VERSION_FILENAME = os.path.join(here, 'near', '__version__.py')
+VERSION_FILENAME = os.path.join(here, 'neaar', '__version__.py')
 
 setup(
   name                          = NAME,
@@ -50,7 +50,7 @@ setup(
   keywords                      = KEYWORDS,
   packages                      = find_packages(include=['', ''], exclude=('test', 'testing')),
   #include_package_data          = True, # no absolute paths are allowed
-  platforms                     = 'Linux',
+  #platforms                     = 'Linux',
   # classifiers                   =[
   #                                  #'License :: OSI Approved :: GPL License',
   #                                  'Programming Language :: Python',

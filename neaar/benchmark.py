@@ -4,7 +4,7 @@ import numpy as np
 import networkx as nx
 from arango import ArangoClient
 
-from near import pa_utils as pa
+from neaar import pa_utils as pa
 from time import time as now
 import random as rng
 # How does the computational time scale with respect on the number of node in
