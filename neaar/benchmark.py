@@ -7,11 +7,11 @@ from arango import ArangoClient
 from neaar import pa_utils as pa
 from time import time as now
 import random as rng
+#%%
 # How does the computational time scale with respect on the number of node in
 # the network?
 
 # Parameters
-N     = 10
 P     = 0.0075
 SEED  = 123
 MIN_N = 100
@@ -30,14 +30,15 @@ client = ArangoClient(hosts=host)
 db     = client.db('_system', username=username, password=password)
 
 # There are infinite function for Graph Generations in Networkx, I chose the
-# one with the catchier name.
+# one with the catchiest name.
 
-
+#%%
 filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'timing_0_1.npy')
 
 
 open(filename, 'w').close() # empty the timing file for testing DANGEROUS
 
+#%%
 times = []
 
 for N in range(MIN_N, MAX_N, STEP):
@@ -49,6 +50,9 @@ for N in range(MIN_N, MAX_N, STEP):
                                               seed=SEED,
                                               directed=False)
 
+  up_load_times = []
+
+  tic = now()
   node_link = nx.readwrite.node_link_data(graph)
   node_link = pa.nx_to_arango(node_link, nodes_collection_name)
 
@@ -56,6 +60,8 @@ for N in range(MIN_N, MAX_N, STEP):
                                    nodes_collection_name,
                                    edges_collection_name,
                                    graph_name)
+  toc = now()
+  up_load_times.append(toc-tic)
 
   time = []
   for _ in range(ITER):
@@ -79,14 +85,27 @@ for N in range(MIN_N, MAX_N, STEP):
 
 data = np.load(filename)
 
+#%%
+
 import matplotlib.pyplot as plt
+from  scipy.stats import linregress
 
 mean  = data.mean(axis=1)
 stdev = data.std(axis=1)
 
-stdev.shape
-mean.shape
+slope, intercept, r_value, p_value, std_err = linregress(range(MIN_N, MAX_N, STEP), mean)
 
-plt.plot(range(MIN_N, MAX_N, STEP), mean)
-plt.fill_between(range(MIN_N, MAX_N-2, STEP), mean+stdev, mean-stdev, alpha=0.5)
+x = range(MIN_N, MAX_N, STEP)
+fig = plt.figure(figsize=(12, 8))
+plt.plot(x, mean, label= "Collected Times")
+plt.fill_between(x, mean+stdev, mean-stdev, alpha=0.5)
+plt.plot(x, intercept + slope*x, 'r')
+textstr = '\n'.join(('y(x) = a + bx',
+                    f'a = {intercept:.5f}',
+                    f'b = {slope:.8f} $\\pm$ {std_err:.8f}',
+                    f'r = 0.98'))
+
+plt.text(6000, 0.20, textstr, fontsize=12,
+        verticalalignment='top',
+        bbox = dict(boxstyle='square', alpha=0.3))
 plt.show()

@@ -23,7 +23,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 NAME = 'neaar'
 DESCRIPTION = 'NEtwork Analysis in ARangoDB'
 URL = 'https://github.com/AlessandrodAgostino/Complex-Network'
-EMAIL = ['alessadrdagostino2@studio.unibo.it', 'mattia.ceccarelli3@studio.unibo.it', 'riccardo.scheda@studio.unibo.it']
+EMAIL = ['alessadr.dagostino2@studio.unibo.it', 'mattia.ceccarelli3@studio.unibo.it', 'riccardo.scheda@studio.unibo.it']
 AUTHOR = ["Alessandro d'Agostino", 'Mattia Ceccarelli', 'Riccardo Scheda']
 REQUIRES_PYTHON = '>=3.7'
 VERSION = '0.1'

@@ -126,5 +126,4 @@ venv.bak/
 .hypothesis/
 
 # configuration files
-script/pwd.txt
 config.json
