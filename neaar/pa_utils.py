@@ -245,3 +245,21 @@ def read_gexf(db, filename,
                            graph_name)
 
   return Net, nx_graph
+
+def k_shortest_path(db, node1, node2, graph_name, k=1):
+  '''
+  That's useless now that we work with graph and traverse,
+  but can be used as a template for future aql work.
+  '''
+
+  bind_vars = {
+               'node1'  : node1,
+               'node2'  : node2,
+               'k'      : k,
+               'graph' : graph_name,
+                }
+
+  aql = 'FOR path IN ANY K_SHORTEST_PATHS @node1 TO @node2 GRAPH @graph LIMIT @k RETURN path'
+
+  res = db.aql.execute(aql, bind_vars=bind_vars).batch()
+  return res
