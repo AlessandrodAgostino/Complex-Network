@@ -212,7 +212,6 @@ def read_gexf(db, filename,
               graph_name='Net'):
   '''
   Creates a graph on `arangodb` from a gexf file. Requires `networkx` to be installed.
-
   Read the graph with the function `read_gexf` of `networkx` and generates [...]
 
   Parameters:
@@ -248,8 +247,17 @@ def read_gexf(db, filename,
 
 def k_shortest_path(db, node1, node2, graph_name, k=1):
   '''
-  That's useless now that we work with graph and traverse,
-  but can be used as a template for future aql work.
+  This function returns the k-shorthest path from
+  node1 to node2, contained in graph_name
+
+  Paramters:
+    db         : Arango databases, result of the function client.db of python-arango
+    node1      : string, name of the first node
+    node2      : string, name of the second node
+    graph_name : string, name of the graph containing the nodes
+
+  Returns:
+    deque object containing the k shortest path
   '''
 
   bind_vars = {
@@ -261,5 +269,5 @@ def k_shortest_path(db, node1, node2, graph_name, k=1):
 
   aql = 'FOR path IN ANY K_SHORTEST_PATHS @node1 TO @node2 GRAPH @graph LIMIT @k RETURN path'
 
-  res = db.aql.execute(aql, bind_vars=bind_vars).batch()
+  res = db.aql.execute(aql, bind_vars=bind_vars).batch()[0]
   return res
