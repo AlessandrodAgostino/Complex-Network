@@ -3,7 +3,7 @@ import os
 from arango import ArangoClient
 import networkx as nx
 
-from near import pa_utils as pa
+from neaar import pa_utils as pa
 
 '''
 This file is a summary of what we are able to do by now:
