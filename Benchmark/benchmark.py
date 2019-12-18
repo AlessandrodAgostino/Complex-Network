@@ -35,7 +35,7 @@ db     = client.db('_system', username=username, password=password)
 #%%
 filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'timing_0_1.npy')
 
-
+#%%
 open(filename, 'w').close() # empty the timing file for testing DANGEROUS
 
 #%%
@@ -82,16 +82,19 @@ for N in range(MIN_N, MAX_N, STEP):
 
   times.append(time)
   np.save(filename, times)
-
+#%%
 data = np.load(filename)
 
 #%%
-
+np.where(data > 0.05)
+copy = data.copy()
+copy[91][7]=(np.sum(copy[91]) - copy[91][7])/9
+#%%
 import matplotlib.pyplot as plt
 from  scipy.stats import linregress
 
-mean  = data.mean(axis=1)
-stdev = data.std(axis=1)
+mean  = copy.mean(axis=1)
+stdev = copy.std(axis=1)
 
 slope, intercept, r_value, p_value, std_err = linregress(range(MIN_N, MAX_N, STEP), mean)
 
@@ -103,9 +106,9 @@ plt.plot(x, intercept + slope*x, 'r')
 textstr = '\n'.join(('y(x) = a + bx',
                     f'a = {intercept:.5f}',
                     f'b = {slope:.8f} $\\pm$ {std_err:.8f}',
-                    f'r = 0.98'))
+                    f'r = {r_value:.2f}'))
 
-plt.text(6000, 0.20, textstr, fontsize=12,
+plt.text(0, 0.018, textstr, fontsize=12,
         verticalalignment='top',
         bbox = dict(boxstyle='square', alpha=0.3))
-plt.show()
+fig.save('graficone.jpg', dpi=400)
