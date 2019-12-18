@@ -47,7 +47,7 @@ def saveCollection(db, name, filename):
   else :
     print(f'Collection {name} does not exist in this database')
 
-def check_create_empty_collection(db, collection_name, edge=False):
+def check_create_empty_collection(db, collection_name, edge=False, truncate = True):
   '''
   Check if a collection "collection_name" exist or not. If the former is true,
   truncate (empty) the collection, or else it will create a new one
@@ -57,14 +57,15 @@ def check_create_empty_collection(db, collection_name, edge=False):
     collection_name : string, Name of the collection to create.
     edge : boolean, default False. If a collection of edge has to be created,
       this must be set to True.
-
+    truncate : boolean, default True. If the collection exists, it overwrites it.
   Returns:
     python arango collection object. Empty.
 
   '''
 
   if db.has_collection(collection_name):
-    db.collection(collection_name).truncate()
+    if (truncate):
+      db.collection(collection_name).truncate()
 
   else :
     db.create_collection(collection_name, edge=edge)
@@ -231,9 +232,9 @@ def read_gexf(db, filename,
     graph object of networkx
   '''
 
-  nx_graph   = rgexf(filename)
+  nx_graph = rgexf(filename)
   # this thing actually doubles the used RAM, it could be better to remove it.
-  graph      = node_link_data(nx_graph)
+  graph    = node_link_data(nx_graph)
 
   # add _key, _to and _from, for ArangoDB
   graph = nx_to_arango(graph, nodes_collection_name)
