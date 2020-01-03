@@ -32,3 +32,14 @@ plt.text(6000, 0.20, textstr, fontsize=12,
         verticalalignment='top',
         bbox = dict(boxstyle='square', alpha=0.3))
 plt.show()
+
+#%%
+import os
+
+import scipy.stats as st
+import pandas as pd
+
+filename = 'exponential_benchmark.csv'
+
+data = pd.read_csv(filename, sep='\t')
+data.head() # check data

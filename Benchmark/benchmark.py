@@ -85,22 +85,19 @@ for N in range(MIN_N, MAX_N, STEP):
 #%%
 data = np.load(filename)
 
-#%%
-np.where(data > 0.05)
-copy = data.copy()
-copy[91][7]=(np.sum(copy[91]) - copy[91][7])/9
+
 #%%
 import matplotlib.pyplot as plt
-from  scipy.stats import linregress
+import scipy.stats import st
 
 mean  = copy.mean(axis=1)
 stdev = copy.std(axis=1)
 
-slope, intercept, r_value, p_value, std_err = linregress(range(MIN_N, MAX_N, STEP), mean)
+slope, intercept, r_value, p_value, std_err = st.linregress(range(MIN_N, MAX_N, STEP), mean)
 
 x = range(MIN_N, MAX_N, STEP)
 fig = plt.figure(figsize=(12, 8))
-plt.plot(x, mean, label= "Collected Times")
+plt.plot(x, mean, label= 'Collected Times')
 plt.fill_between(x, mean+stdev, mean-stdev, alpha=0.5)
 plt.plot(x, intercept + slope*x, 'r')
 textstr = '\n'.join(('y(x) = a + bx',
