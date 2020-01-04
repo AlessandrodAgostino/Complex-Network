@@ -66,7 +66,7 @@ for n,N in enumerate(Number_Nodes):
       node2 = rng.randint(0, N-1)
 
       tic = now()
-      pa.k_shortest_path(db, node1, node2,
+      pa.k_shortest_path(db, node1, node2, graph_name, k=1)
       toc = now()
       bench_table.loc[n*ITER+i] = [N, P, toc-tic, user]
   bench_table.to_csv(NAME, sep='\t')
