@@ -13,7 +13,7 @@ from neaar import pa_utils as pa
 # Parameters
 
 MIN_DEPTH = 0
-MAX_DEPTH = 1
+MAX_DEPTH = 2
 
 NAME  = f'traverse_{MIN_DEPTH}_{MAX_DEPTH}'
 P     = 0.0075
@@ -21,7 +21,7 @@ SEED  = 123
 MIN_N = 200
 MAX_N = 10000
 STEPS = 50 # How many steps I want to collect
-ITER  = 10
+ITER  = 30
 user  = os.getcwd().split('/')[2]
 
 # Naming

@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import scipy.stats as st
 
-bench_table = pd.read_csv('exponential_benchmark.csv', sep='\t')
-upload_table = pd.read_csv('exponential_benchmark_upload.csv', sep='\t')
+
+bench_table = pd.read_csv('traverse_0_2', sep='\t')
+upload_table = pd.read_csv('traverse_0_2_upload', sep='\t')
 
 upload_table.head()
 
@@ -12,17 +14,27 @@ upload_table.plot(x='Nodes Number', y='Upload Time (s)')
 plt.show()
 
 #%%
-data = np.load('../data/timing_0_1.npy')
-mean  = data.mean(axis=1)
-stdev = data.std(axis=1)
 
-slope, intercept, r_value, p_value, std_err = linregress(range(MIN_N, MAX_N, STEPS), mean)
+node_numbers = bench_table['Nodes Number'].unique()
 
-x = range(MIN_N, MAX_N, STEPS)
-fig = plt.figure(figsize=(12, 8))
-plt.plot(x, mean, label= "Collected Times")
-plt.fill_between(x, mean+stdev, mean-stdev, alpha=0.5)
-plt.plot(x, intercept + slope*x, 'r')
+mean = []
+stdv = []
+for n in node_numbers:
+  condition = bench_table['Nodes Number'] == n
+  times     = bench_table[condition]['Run Time (s)']
+  mean.append(times.mean())
+  stdv.append(times.std())
+
+mean = np.asarray(mean)
+stdv = np.asarray(stdv)
+
+#%%
+slope, intercept, r_value, p_value, std_err = st.linregress(node_numbers, mean)
+
+fig = plt.figure(figsize=(15, 8))
+plt.plot(node_numbers, mean, label= "Collected Times")
+plt.fill_between(node_numbers, mean+stdv, mean-stdv, alpha=0.5)
+plt.plot(node_numbers, intercept + slope*np.asarray(node_numbers), 'r')
 textstr = '\n'.join(('y(x) = a + bx',
                     f'a = {intercept:.5f}',
                     f'b = {slope:.8f} $\\pm$ {std_err:.8f}',
@@ -32,14 +44,3 @@ plt.text(6000, 0.20, textstr, fontsize=12,
         verticalalignment='top',
         bbox = dict(boxstyle='square', alpha=0.3))
 plt.show()
-
-#%%
-import os
-
-import scipy.stats as st
-import pandas as pd
-
-filename = 'exponential_benchmark.csv'
-
-data = pd.read_csv(filename, sep='\t')
-data.head() # check data
