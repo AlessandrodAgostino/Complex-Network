@@ -248,13 +248,13 @@ def read_gexf(db, filename,
 
 def k_shortest_path(db, node1, node2, graph_name, k=1):
   '''
-  This function returns the k-shorthest path from
+  This function returns the first k shorthest path from
   node1 to node2, contained in graph_name
 
   Paramters:
     db         : Arango databases, result of the function client.db of python-arango
     node1      : string, name of the first node
-    node2      : string, name of the second node
+    node2      : string, name of the last node
     graph_name : string, name of the graph containing the nodes
 
   Returns:
