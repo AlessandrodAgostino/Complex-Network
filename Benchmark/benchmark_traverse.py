@@ -73,10 +73,10 @@ for n,N in enumerate(Number_Nodes):
                    graph_name=graph_name,
                    direction='outbound',
                    item_order='forward',
-                   min_depth=0,
-                   max_depth=1,
+                   min_depth=MIN_DEPTH,
+                   max_depth=MAX_DEPTH,
                    vertex_uniqueness='global')
       toc = now()
       bench_table.loc[n*ITER+i] = [N, P, toc-tic, user]
-  bench_table.to_csv(NAME, sep='\t')
-  upload_table.to_csv(NAME + '_upload', sep='\t')
+  bench_table.to_csv(NAME + '.csv', sep='\t')
+  upload_table.to_csv(NAME + '_upload.csv', sep='\t')
