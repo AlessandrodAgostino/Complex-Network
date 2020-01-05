@@ -1,5 +1,7 @@
 import os
 from time import time as now
+from os.path import join as pj
+
 
 import numpy as np
 import networkx as nx
@@ -13,7 +15,7 @@ from neaar import pa_utils as pa
 # Parameters
 
 MIN_DEPTH = 0
-MAX_DEPTH = 2
+MAX_DEPTH = 3
 
 NAME  = f'traverse_{MIN_DEPTH}_{MAX_DEPTH}'
 P     = 0.0075
@@ -30,7 +32,7 @@ edges_collection_name = 'timing_edges'
 graph_name = 'timing_graph'
 
 # Access to db
-host, username, password = pa.load_pass(filename='config.json')
+host, username, password = pa.load_pass(filename='Complex-Network/config.json')
 client = ArangoClient(hosts=host)
 db     = client.db('_system', username=username, password=password)
 
@@ -78,5 +80,5 @@ for n,N in enumerate(Number_Nodes):
                    vertex_uniqueness='global')
       toc = now()
       bench_table.loc[n*ITER+i] = [N, P, toc-tic, user]
-  bench_table.to_csv(NAME + '.csv', sep='\t')
-  upload_table.to_csv(NAME + '_upload.csv', sep='\t')
+  bench_table.to_csv(pj('Benchmark', NAME + '.csv'), sep='\t')
+  upload_table.to_csv(pj('Benchmark', NAME + '_upload.csv'), sep='\t')
