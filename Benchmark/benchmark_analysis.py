@@ -28,7 +28,8 @@ plt.plot(node_numbers, intercept + slope*np.asarray(node_numbers), 'r')
 textstr = '\n'.join(('y(x) = a + bx',
                     f'a = {intercept:.5f}',
                     f'b = {slope:.8f} $\\pm$ {std_err:.8f}',
-                    f'r = 0.98'))
+                    f'r = {r_value}',
+                    f'$r^2$ = {r_value**2}'))
 
 plt.text(0, 0.020,
          s = textstr,

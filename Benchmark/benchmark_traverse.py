@@ -15,7 +15,7 @@ from neaar import pa_utils as pa
 # Parameters
 
 MIN_DEPTH = 0
-MAX_DEPTH = 3
+MAX_DEPTH = 4
 
 NAME  = f'traverse_{MIN_DEPTH}_{MAX_DEPTH}'
 P     = 0.0075
@@ -52,7 +52,7 @@ for n,N in enumerate(Number_Nodes):
 
   print(N, end='\r')
 
-  graph = nx.generators.fast_gnp_random_graph(n=N, p=P1, directed=False)
+  graph = nx.generators.fast_gnp_random_graph(n=N, p=P, directed=False)
 
   tic = now()
   node_link = nx.readwrite.node_link_data(graph)
