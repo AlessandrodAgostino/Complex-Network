@@ -273,7 +273,7 @@ def k_shortest_path(db, node1, node2, graph_name, k=1):
   res = list(db.aql.execute(aql, bind_vars=bind_vars).batch())
 
   # PROPOSAL:
-  # Maybe a check on the amptyness of res might be valuable.
+  # Maybe a check on the emptyness of res might be valuable.
   # if res return res
 
   return res
