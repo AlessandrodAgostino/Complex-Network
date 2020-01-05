@@ -258,7 +258,7 @@ def k_shortest_path(db, node1, node2, graph_name, k=1):
     graph_name : string, name of the graph containing the nodes
 
   Returns:
-    deque object containing the k shortest path
+    a list made of the deque object containing the k shortest paths
   '''
 
   bind_vars = {
@@ -270,5 +270,10 @@ def k_shortest_path(db, node1, node2, graph_name, k=1):
 
   aql = 'FOR path IN ANY K_SHORTEST_PATHS @node1 TO @node2 GRAPH @graph LIMIT @k RETURN path'
 
-  res = db.aql.execute(aql, bind_vars=bind_vars).batch()[0]
+  res = list(db.aql.execute(aql, bind_vars=bind_vars).batch())
+
+  # PROPOSAL:
+  # Maybe a check on the amptyness of res might be valuable.
+  # if res return res
+
   return res

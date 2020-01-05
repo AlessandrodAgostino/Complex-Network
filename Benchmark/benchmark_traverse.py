@@ -50,7 +50,7 @@ for n,N in enumerate(Number_Nodes):
 
   print(N, end='\r')
 
-  graph = nx.generators.fast_gnp_random_graph(n=N, p=P, directed=False)
+  graph = nx.generators.fast_gnp_random_graph(n=N, p=P1, directed=False)
 
   tic = now()
   node_link = nx.readwrite.node_link_data(graph)

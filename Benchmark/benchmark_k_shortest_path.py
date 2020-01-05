@@ -1,5 +1,6 @@
 import os
 from time import time as now
+from os.path import join as pj
 
 import numpy as np
 import networkx as nx
@@ -27,7 +28,7 @@ edges_collection_name = 'timing_edges'
 graph_name = 'timing_graph'
 
 # Access to db
-host, username, password = pa.load_pass(filename='config.json')
+host, username, password = pa.load_pass(filename='Complex-Network/config.json')
 client = ArangoClient(hosts=host)
 db     = client.db('_system', username=username, password=password)
 
@@ -62,12 +63,13 @@ for n,N in enumerate(Number_Nodes):
 
   for i in range(ITER):
       # random starting node
-      node1 = rng.randint(0, N-1)
-      node2 = rng.randint(0, N-1)
+      nodes_number = rng.sample(range(0, N-1), 2)
+      node1 = '/'.join((nodes_collection_name,str(nodes_number[0])))
+      node2 = '/'.join((nodes_collection_name,str(nodes_number[1])))
 
       tic = now()
       pa.k_shortest_path(db, node1, node2, graph_name, k=K)
       toc = now()
       bench_table.loc[n*ITER+i] = [N, P, toc-tic, user]
-  bench_table.to_csv(NAME + '.csv', sep='\t')
-  upload_table.to_csv(NAME + '_upload.csv', sep='\t')
+  bench_table.to_csv(pj('Benchmark', NAME + '.csv'), sep='\t')
+  upload_table.to_csv(pj('Benchmark', NAME + '_upload.csv'), sep='\t')
