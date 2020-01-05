@@ -12,7 +12,7 @@ from neaar import pa_utils as pa
 
 #%%
 # Parameters
-K     = 1 # number of path we want to search
+K     = 5 # number of path we want to search
 NAME  = f'{K}_shortest_path'
 P     = 0.0075
 SEED  = 123
@@ -73,3 +73,4 @@ for n,N in enumerate(Number_Nodes):
       bench_table.loc[n*ITER+i] = [N, P, toc-tic, user]
   bench_table.to_csv(pj('Benchmark', NAME + '.csv'), sep='\t')
   upload_table.to_csv(pj('Benchmark', NAME + '_upload.csv'), sep='\t')
+  

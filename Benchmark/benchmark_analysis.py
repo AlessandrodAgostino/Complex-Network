@@ -3,32 +3,22 @@ import pandas as pd
 import numpy as np
 import scipy.stats as st
 
+#Import data from csv through pandas
+bench_table = pd.read_csv('Benchmark/traverse_0_2', sep='\t', index_col = 0)
+upload_table = pd.read_csv('Benchmark/traverse_0_2_upload', sep='\t', index_col = 0)
 
-bench_table = pd.read_csv('traverse_0_2', sep='\t')
-upload_table = pd.read_csv('traverse_0_2_upload', sep='\t')
-
-upload_table.head()
-
-fig = plt.figure(figsize=(12,8))
-upload_table.plot(x='Nodes Number', y='Upload Time (s)')
-plt.show()
-
-#%%
-
+#Computing mean and std deviation of 'Run Time (s)' grouping the data by 'Nodes Number'
+mean_std_df = bench_table.drop(['Probability'], axis = 1).groupby(['Nodes Number']).agg({'Run Time (s)':['mean','std']})
+mean = mean_std_df['Run Time (s)']['mean'].values
+std = mean_std_df['Run Time (s)']['std'].values
 node_numbers = bench_table['Nodes Number'].unique()
 
-mean = []
-stdv = []
-for n in node_numbers:
-  condition = bench_table['Nodes Number'] == n
-  times     = bench_table[condition]['Run Time (s)']
-  mean.append(times.mean())
-  stdv.append(times.std())
-
-mean = np.asarray(mean)
-stdv = np.asarray(stdv)
+# #%%
+# fig = plt.figure(figsize=(12,8))
+# bench_table.plot.scatter(x='Nodes Number', y='Run Time (s)')
 
 #%%
+#Linear fit and plotting
 slope, intercept, r_value, p_value, std_err = st.linregress(node_numbers, mean)
 
 fig = plt.figure(figsize=(15, 8))
@@ -40,7 +30,8 @@ textstr = '\n'.join(('y(x) = a + bx',
                     f'b = {slope:.8f} $\\pm$ {std_err:.8f}',
                     f'r = 0.98'))
 
-plt.text(6000, 0.20, textstr, fontsize=12,
-        verticalalignment='top',
-        bbox = dict(boxstyle='square', alpha=0.3))
-plt.show()
+plt.text(0, 0.020,
+         s = textstr,
+         fontsize=12,
+         verticalalignment='top',
+         bbox = dict(boxstyle='square', alpha=0.3))
