@@ -71,6 +71,5 @@ for n,N in enumerate(Number_Nodes):
       pa.k_shortest_path(db, node1, node2, graph_name, k=K)
       toc = now()
       bench_table.loc[n*ITER+i] = [N, P, toc-tic, user]
-  bench_table.to_csv(pj('Benchmark', NAME + '.csv'), sep='\t')
-  upload_table.to_csv(pj('Benchmark', NAME + '_upload.csv'), sep='\t')
-  
+  bench_table.to_csv(pj('Benchmark','csv', NAME + '.csv'), sep='\t')
+  upload_table.to_csv(pj('Benchmark','csv', NAME + '_upload.csv'), sep='\t')

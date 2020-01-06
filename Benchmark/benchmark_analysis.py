@@ -4,8 +4,8 @@ import numpy as np
 import scipy.stats as st
 
 # Import data from csv through pandas
-bench_table = pd.read_csv('Benchmark/traverse_0_2.csv', sep='\t', index_col=0)
-upload_table = pd.read_csv('Benchmark/traverse_0_2_upload.csv', sep='\t', index_col=0)
+bench_table = pd.read_csv('Benchmark/csv/traverse_0_2.csv', sep='\t', index_col=0)
+upload_table = pd.read_csv('Benchmark/csv/traverse_0_2_upload.csv', sep='\t', index_col=0)
 
 # Computing mean and std deviation of 'Run Time (s)' grouping the data by 'Nodes Number'
 mean_std_df = bench_table.drop(['Probability'], axis=1).groupby(['Nodes Number']).agg({'Run Time (s)':['mean','std']})

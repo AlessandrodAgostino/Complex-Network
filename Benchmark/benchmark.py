@@ -108,4 +108,4 @@ textstr = '\n'.join(('y(x) = a + bx',
 plt.text(0, 0.018, textstr, fontsize=12,
         verticalalignment='top',
         bbox = dict(boxstyle='square', alpha=0.3))
-fig.save('graficone.jpg', dpi=400)
+fig.save('Benchmark/csv/graficone.jpg', dpi=400)
