@@ -16,7 +16,6 @@ from neaar import pa_utils as pa
 MIN_DEPTH = 0
 MAX_DEPTH = 4
 
-NAME  = f'traverse_{MIN_DEPTH}_{MAX_DEPTH}'
 P     = 0.0075
 SEED  = 123
 MIN_N = 200
@@ -24,6 +23,7 @@ MAX_N = 10000
 STEPS = 50 # How many steps I want to collect
 ITER  = 30
 user  = os.getcwd().split('/')[2]
+NAME  = f'{user}_traverse_{MIN_DEPTH}_{MAX_DEPTH}'
 
 # Naming
 nodes_collection_name = 'timing'
@@ -36,7 +36,6 @@ client = ArangoClient(hosts=host)
 db     = client.db('_system', username=username, password=password)
 
 #%%
-upload_table = pd.DataFrame(columns=['Nodes Number', 'Probability', 'Upload Time (s)', 'user'])
 bench_table  = pd.DataFrame(columns=['Nodes Number', 'Probability', 'Run Time (s)', 'user'])
 
 csi   = np.divide(np.log(MAX_N / MIN_N), STEPS)
@@ -80,4 +79,3 @@ for n,N in enumerate(Number_Nodes):
       toc = now()
       bench_table.loc[n*ITER+i] = [N, P, toc-tic, user]
   bench_table.to_csv(pj('Benchmark','csv', NAME + '.csv'), sep='\t')
-  upload_table.to_csv(pj('Benchmark','csv', NAME + '_upload.csv'), sep='\t')
