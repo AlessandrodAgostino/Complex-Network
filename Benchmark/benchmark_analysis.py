@@ -14,17 +14,12 @@ std = mean_std_df['Run Time (s)']['std'].values
 node_numbers = bench_table['Nodes Number'].unique()
 
 #%%
-# fig = plt.figure(figsize=(12,8))
-# bench_table.plot.scatter(x='Nodes Number', y='Run Time (s)')
-
-#%%
-
 # Linear fit and plotting
 slope, intercept, r_value, p_value, std_err = st.linregress(node_numbers, mean)
 
 fig = plt.figure(figsize=(15, 8))
 plt.plot(node_numbers, mean, label= 'Collected Times')
-plt.fill_between(node_numbers, mean+stdv, mean-stdv, alpha=0.5)
+plt.fill_between(node_numbers, mean+std, mean-std, alpha=0.5)
 plt.plot(node_numbers, intercept + slope*np.asarray(node_numbers), 'r')
 textstr = '\n'.join(('y(x) = a + bx',
                     f'a = {intercept:.5f}',
@@ -32,8 +27,9 @@ textstr = '\n'.join(('y(x) = a + bx',
                     f'r = {r_value}',
                     f'$r^2$ = {r_value**2}'))
 
-plt.text(0, 0.020,
+plt.text(0, 0.1,
          s = textstr,
          fontsize=12,
          verticalalignment='top',
          bbox = dict(boxstyle='square', alpha=0.3))
+#%%
