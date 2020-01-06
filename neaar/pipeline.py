@@ -40,7 +40,7 @@ Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,
 
 # Extract a subnet from the graph with a graph traverse of python-arango
 # This could be any traversal, any query, any sub set of nodes from Sym_Deas
-astenia_first_neighbours = pa.traverse(db=db, starting_node='astenia',
+astenia_first_neighbours = pa.traverse(db=db, starting_node='emicrania',
                                        nodes_collection_name='Sym_Deas',
                                        graph_name='Sym_Net',
                                        direction='outbound',
@@ -50,36 +50,20 @@ astenia_first_neighbours = pa.traverse(db=db, starting_node='astenia',
                                        vertex_uniqueness='global')
 
 # Now we have a dict of the first neighbours of astenia and all the paths which
-# reach that neighbour
+# reach that neighbours
 
 # Build the Sub_Net in networkx easy peasy
 Nx_Sub_Net = Nx_Net.subgraph([vertex['label'] for vertex in astenia_first_neighbours['vertices']])
 
-# This is missing data from arangodb ofc
-# Nx_Sub_Net.nodes(data=True)
-
-# With this we append the data from Sym_Deas
 for node in Nx_Sub_Net:
   attr = pa.get_vertex(db, {'label':node}, 'Sym_Deas')
   nx.set_node_attributes(Nx_Sub_Net, {node : attr})
 
-# in fact:
-# for _, data in Nx_Sub_Net.nodes(data=True):
-#   print(data)
-
-# now we need to create arangodb collections friendly data.
-# for now, I probably need to node_link_data: (Memory problems ofc)
-
 sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
-
-# from this, it's easy to create a sub coll of nodes and link:
 
 sub_net = pa.nx_to_arango(sub_net, 'Sub_Net')
 
-# now loading into arangodb.
-
 Sub_Net = pa.export_to_arango(db, sub_net ,'Sub_Net', 'Sub_Net_edges', 'Sub_Graph')
-
 
 ################### Keep this code as it is, may comes in handy later #########
 
