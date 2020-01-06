@@ -272,8 +272,22 @@ def k_shortest_path(db, node1, node2, graph_name, k=1):
 
   res = list(db.aql.execute(aql, bind_vars=bind_vars).batch())
 
-  # PROPOSAL:
-  # Maybe a check on the emptyness of res might be valuable.
-  # if res return res
-
   return res
+
+def subgraph(nodes_list, nx_graph, nodes_collection_name, nodes_subcollection_name='Sub_Net'):
+  '''Create a complete subnetwork from a list of nodes
+  '''
+
+  Nx_Sub_Net = nx_graph.subgraph(nodes_list)
+
+  for node in Nx_Sub_Net:
+    attr = pa.get_vertex(db, {'label': node}, nodes_collection_name)
+    nx.set_node_attributes(Nx_Sub_Net, {node : attr})
+
+  Nx_Sub_Net = nx.readwrite.node_link_data(Nx_Sub_Net)
+  sub_net = pa.nx_to_arango(Nx_Sub_Net, 'Sub_Net')
+  sub_net = pa.export_to_arango(db, sub_net ,nodes_subcollection_name,
+                                             nodes_subcollection_name + '_edges',
+                                             nodes_subcollection_name + '_sub_graph')
+
+  return sub_net, Nx_Sub_Net

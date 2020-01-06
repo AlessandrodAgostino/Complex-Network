@@ -8,7 +8,7 @@ import numpy as np
 
 from neaar import pa_utils as pa
 
-host, username, password = pa.load_pass(filename='../config.json')
+host, username, password = pa.load_pass(filename='config.json')
 # Initializ the client for ArangoDB. Connect to "_system" database as root user.
 client = ArangoClient(hosts=host)
 db     = client.db('_system', username=username, password=password)
@@ -37,8 +37,6 @@ for n,ed in enumerate(nx_graph.edges(data=True)):
     graph['links'][n]['_key']  = 'E'+str(n)
     graph['links'][n]['_from'] =  classes[str(nodes[int(edges[n][0])][1]['subset'])]+'/'+str(edges[n][0])
     graph['links'][n]['_to']   =  classes[str(nodes[int(edges[n][1])][1]['subset'])]+'/'+str(edges[n][1])
-
-
 
 #
 # for n,link in enumerate(graph['links']):
