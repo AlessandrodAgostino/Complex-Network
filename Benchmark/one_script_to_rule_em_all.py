@@ -61,7 +61,6 @@ for n,N in enumerate(Number_Nodes):
                                    edges_collection_name,
                                    graph_name)
   toc = now()
-  upload_table.loc[n] = [N, P, toc-tic, user]
 
   for i in range(ITER):
       # random starting node
