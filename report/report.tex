@@ -2,13 +2,13 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{pdfpages}
+\usepackage{hyperref}
 
 \usepackage{verbatim}
  
 \title{Network Analysis in ArangoDB}
-\date{2020\\ January}
+\date{January 2020}
 \author{Alessandro d'Agostino, Mattia Ceccarelli, Riccardo Scheda}
-
 
 \begin{document}
 
@@ -18,20 +18,32 @@
 \maketitle
 
 \begin{abstract}
-In this project we develop a Python module NEAAR in order to perform network analysis on ArangoDB graphs using the Python library Networkx.
+The project aim is to develop a simple python API that let the user interact with the open-source multi-model database ArangoDB to perform fast queries on multi-partite graphs, extract and visualize sub-network which can then be analized with powerful python libraries.
+The study also includes results on the computational efficiency of ArangoDB's algorithms, in order to have an estimate of the API timing behaviours with large networks.
 \end{abstract}
 \end{@twocolumnfalse}
 ]
 
-ArangoDB is an open-source native multi-model database for graphs and documents.
-It's useful for graph visualization.
+\section{Introduction}
+ArangoDB \cite{WEBSITE:arangodb} is a multi-model, open-source database with flexible data models for documents, graphs and key-values. It is being used in different fields: from semantic analysis to genome studies. 
 
-The main problem of the project was to make an API between arangoDB and the Python library Networkx in order to do some operations on the graphs of arangodb through Networkx.
+In the present work we employed the library \verb python-arango  \cite{WEBSITE:pythonarango} to import and export multipartite network-like databases, that are defined as collections of documents (nodes) and a collection of relationships between them (edges).
 
-To create a graph in ArangoDB, we need some two types of documents, one for the nodes and one for the edges. A single document contains all the attributes of one node or of one edge. A set of documents is a collection. So to create one simple graph we need two collections, one for the nodes and one for the edges. 
+In particular, a document is a python dictionary with a mandatory \verb _id  key assigned to a unique value. 
+What we call an "edge" is also a python dictionary, but with an \verb _id , \verb _source  and \verb _target  voices, to specify not only the linked nodes, but also the direction of said link in the case of directed graphs.
+
+\paragraph{Graph Object}
+A Graph is the combination of at least one node collection and a single edge collection, called edge definition. 
+With a Graph two main operations are available: visualization and execution of a query.
+
+The former is possible thanks to ArangoDB web interface, as shown in the figures below, which provide the user many options such as the starting node and the number of elements to load. By default, the starting node is random.
+
+For the latter we relied on the poweful AQL, that is the query language implemented in arango. It is used to execute different kind of "search" through the graph, and select nodes and edges.
 
 
-The starting point is the creation of a networkx graph using the function 
+\paragraph{Pipeline}
+
+
 \begin{verbatim}
 read_gexf(db, 
           filename,
@@ -46,9 +58,9 @@ Now in the Arango web interface we have a graph and the two collections of nodes
 
 Then, we can extract a subnet from the graph with a graph traverse of python-arango, using the function:
 \begin{verbatim}
-traverse(db=db, starting_node='emicrania',
-         nodes_collection_name='Sym_Deas',
-         graph_name='Sym_Net',
+traverse(db, starting_node,
+         nodes_collection_name,
+         graph_name,
          direction='outbound',
          item_order='forward',
          min_depth=0,
@@ -62,5 +74,21 @@ this function returns a Python list containing vertex and the path crossed by th
 
 Now we have a dict of the first neighbours of astenia and all the paths which reach that neighbours
 Now, having the list of the first neighbours we can obtain the subnet just using the function \textit{subgraph} given by Networkx.
+
+
+
+\section{Timing}
+
+\section{Results}
+
+\section{Conclusion}
+
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\bibliography{biblio} 
+\bibliographystyle{ieeetr}
+\end{@twocolumnfalse}
+]
 
 \end{document}

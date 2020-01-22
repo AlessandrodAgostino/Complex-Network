@@ -4,8 +4,8 @@ import numpy as np
 import scipy.stats as st
 
 # Import data from csv through pandas
-bench_table = pd.read_csv('Benchmark/csv/traverse_0_2.csv', sep='\t', index_col=0)
-upload_table = pd.read_csv('Benchmark/csv/traverse_0_2_upload.csv', sep='\t', index_col=0)
+bench_table = pd.read_csv('csv/traverse_0_2.csv', sep='\t', index_col=0)
+# upload_table = pd.read_csv('csv/traverse_0_2_upload.csv', sep='\t', index_col=0)
 
 # Computing mean and std deviation of 'Run Time (s)' grouping the data by 'Nodes Number'
 mean_std_df = bench_table.drop(['Probability'], axis=1).groupby(['Nodes Number']).agg({'Run Time (s)':['mean','std']})
@@ -26,10 +26,14 @@ textstr = '\n'.join(('y(x) = a + bx',
                     f'b = {slope:.8f} $\\pm$ {std_err:.8f}',
                     f'r = {r_value}',
                     f'$r^2$ = {r_value**2}'))
+plt.xlabel('Number of nodes')
+plt.ylabel('Run Time (s)')
+plt.title('Second neighbour query timing')
 
 plt.text(0, 0.1,
          s = textstr,
          fontsize=12,
          verticalalignment='top',
          bbox = dict(boxstyle='square', alpha=0.3))
+plt.savefig('traverse_0_2.png')
 #%%
