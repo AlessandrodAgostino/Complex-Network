@@ -5,7 +5,7 @@
 \usepackage{hyperref}
 
 \usepackage{verbatim}
- 
+
 \title{Network Analysis in ArangoDB}
 \date{January 2020}
 \author{Alessandro d'Agostino, Mattia Ceccarelli, Riccardo Scheda}
@@ -25,15 +25,15 @@ The study also includes results on the computational efficiency of ArangoDB's al
 ]
 
 \section{Introduction}
-ArangoDB \cite{WEBSITE:arangodb} is a multi-model, open-source database with flexible data models for documents, graphs and key-values. It is being used in different fields: from semantic analysis to genome studies. 
+ArangoDB \cite{WEBSITE:arangodb} is a multi-model, open-source database with flexible data models for documents, graphs and key-values. It is being used in different fields: from semantic analysis to genome studies.
 
 In the present work we employed the library \verb python-arango  \cite{WEBSITE:pythonarango} to import and export multipartite network-like databases, that are defined as collections of documents (nodes) and a collection of relationships between them (edges).
 
-In particular, a document is a python dictionary with a mandatory \verb _id  key assigned to a unique value. 
+In particular, a document is a python dictionary with a mandatory \verb _id  key assigned to a unique value.
 What we call an "edge" is also a python dictionary, but with an \verb _id , \verb _source  and \verb _target  voices, to specify not only the linked nodes, but also the direction of said link in the case of directed graphs.
 
 \paragraph{Graph Object}
-A Graph is the combination of at least one node collection and a single edge collection, called edge definition. 
+A Graph is the combination of at least one node collection and a single edge collection, called edge definition.
 With a Graph two main operations are available: visualization and execution of a query.
 
 The former is possible thanks to ArangoDB web interface, as shown in the figures below, which provide the user many options such as the starting node and the number of elements to load. By default, the starting node is random.
@@ -47,9 +47,9 @@ Now we describe the operations which lead to have a subgraph in ArangoDB.
 The first thing to do is read the file in gexf format.
 To do this we use the function \textit{read\_gexf}:
 \begin{verbatim}
-read_gexf(db, 
+read_gexf(db,
           filename,
-          nodes_collection_name='nodes', 
+          nodes_collection_name='nodes',
           edges_collection_name='edges',
           graph_name='Net')
 \end{verbatim}
@@ -60,7 +60,7 @@ Now in the Arango web interface we have a graph and the two collections of nodes
 
 Then, we can extract a subnet from the graph with a graph traverse of python-arango, using the function:
 \begin{verbatim}
-first_neighbours = traverse(db, 
+first_neighbours = traverse(db,
          starting_node,
          nodes_collection_name,
          graph_name,
@@ -73,7 +73,7 @@ first_neighbours = traverse(db,
 
 \begin{quote}{Shakespear:}
 The traverse starts from a starting node that one chooses, and compute the 1,2... first neighbours of that starting node.
-\end{quote} 
+\end{quote}
 This could be any traversal, any query, any sub set of nodes from the graph.
 this function returns a Python list containing vertex and the path crossed by the traverse.
 
@@ -81,9 +81,9 @@ Now we have a dict of the first neighbours of astenia and all the paths which re
 Now, having the list of the first neighbours we can obtain the subnet just using the function \textit{subgraph} given by Networkx:
 \begin{verbatim}
 
-Nx_Sub_Net = 
-Nx_Net.subgraph([vertex['label'] 
-for vertex in 
+Nx_Sub_Net =
+Nx_Net.subgraph([vertex['label']
+for vertex in
 first_neighbours['vertices']])
 \end{verbatim}
 
@@ -91,10 +91,10 @@ In this way we create the subgraph only with the nodes and the edges, so now we 
 
 \begin{verbatim}
 for node in Nx_Sub_Net:
-  attr = pa.get_vertex(db, 
-                       {'label':node}, 
+  attr = pa.get_vertex(db,
+                       {'label':node},
                        'Sym_Deas')
-  nx.set_node_attributes(Nx_Sub_Net, 
+  nx.set_node_attributes(Nx_Sub_Net,
                  {node : attr})
 \end{verbatim}
 The ast thing to do is to export the subnetwork on ArangoDB, using the two functions \textit{nx\_to\_arango} and \textit{eport\_to\_arango}:
@@ -102,10 +102,10 @@ The ast thing to do is to export the subnetwork on ArangoDB, using the two funct
 \begin{verbatim}
 sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
 sub_net = pa.nx_to_arango(sub_net, 'Sub_Net')
-Sub_Net = pa.export_to_arango(db, 
+Sub_Net = pa.export_to_arango(db,
                   sub_net ,
-                  'Sub_Net', 
-                  'Sub_Net_edges', 
+                  'Sub_Net',
+                  'Sub_Net_edges',
                   'Sub_Graph')
 \end{verbatim}
 
@@ -124,19 +124,17 @@ As shown in the results, the scaling of the ArangoDB query algorithm is linear f
 The main problems lie in the level of control we can gather through python. Indeed, it seems to be impossible to load and save default queries.
 Moreover, we couldn't manage to save graph visualization options, which could ease the accessibility.
 
-\paragraph{Future Ideas} 
+\paragraph{Future Ideas}
 
 We will focus on preparing the applicative for the non-programmer user.
 
-Primarly, the readibility of the code must be improved.
+We think a Graphical User Interface (GUI) could greatly smoothen the user experience.
 
-We also think a Graphical User Interface (GUI) could greatly smoothen the user experience. 
-
-In the future we hope to test the applicative to a muc larger database than the one we had at disposal.
+In the future we want to test the applicative with a much larger database than the one we had at disposal.
 
 \twocolumn[
 \begin{@twocolumnfalse}
-\bibliography{biblio} 
+\bibliography{biblio}
 \bibliographystyle{ieeetr}
 \end{@twocolumnfalse}
 ]
