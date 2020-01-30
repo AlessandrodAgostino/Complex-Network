@@ -41,9 +41,11 @@ The former is possible thanks to ArangoDB web interface, as shown in the figures
 For the latter we relied on the poweful AQL, that is the query language implemented in arango. It is used to execute different kind of "search" through the graph, and select nodes and edges.
 
 
-\paragraph{Pipeline}
+\section{Pipeline}
 
-
+Now we describe the operations which lead to have a subgraph in ArangoDB.
+The first thing to do is read the file in gexf format.
+To do this we use the function \textit{read\_gexf}:
 \begin{verbatim}
 read_gexf(db, 
           filename,
@@ -58,7 +60,8 @@ Now in the Arango web interface we have a graph and the two collections of nodes
 
 Then, we can extract a subnet from the graph with a graph traverse of python-arango, using the function:
 \begin{verbatim}
-traverse(db, starting_node,
+first_neighbours = traverse(db, 
+         starting_node,
          nodes_collection_name,
          graph_name,
          direction='outbound',
@@ -75,14 +78,42 @@ This could be any traversal, any query, any sub set of nodes from the graph.
 this function returns a Python list containing vertex and the path crossed by the traverse.
 
 Now we have a dict of the first neighbours of astenia and all the paths which reach that neighbours
-Now, having the list of the first neighbours we can obtain the subnet just using the function \textit{subgraph} given by Networkx.
+Now, having the list of the first neighbours we can obtain the subnet just using the function \textit{subgraph} given by Networkx:
+\begin{verbatim}
 
+Nx_Sub_Net = 
+Nx_Net.subgraph([vertex['label'] 
+for vertex in 
+first_neighbours['vertices']])
+\end{verbatim}
+
+In this way we create the subgraph only with the nodes and the edges, so now we have to add all the attributes to each node:
+
+\begin{verbatim}
+for node in Nx_Sub_Net:
+  attr = pa.get_vertex(db, 
+                       {'label':node}, 
+                       'Sym_Deas')
+  nx.set_node_attributes(Nx_Sub_Net, 
+                 {node : attr})
+\end{verbatim}
+The ast thing to do is to export the subnetwork on ArangoDB, using the two functions \textit{nx\_to\_arango} and \textit{eport\_to\_arango}:
+
+\begin{verbatim}
+sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
+sub_net = pa.nx_to_arango(sub_net, 'Sub_Net')
+Sub_Net = pa.export_to_arango(db, 
+                  sub_net ,
+                  'Sub_Net', 
+                  'Sub_Net_edges', 
+                  'Sub_Graph')
+\end{verbatim}
 
 \section{Timing}
 
 \section{Results}
 
-\section{Conclusion}
+\section{Conclusions}
 
 We've produced an applicative to visualize and efficiently query a graph-like database with a simple yet resourceful programming language like python.
 
