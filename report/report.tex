@@ -46,7 +46,7 @@ ArangoDB offers a valid web interface where all the commands could be given intu
 Furthermore there are several ArangoDB Python interfaces available on line, which allowed us to taylor this poweful tool to our needs.
 
 \paragraph{NetworkX}
-Even though ArangoDb allows fast queries it is necessary the right tool to study the characteristics of a resulting subnet.Forthis purpose we decided to exploit mainly the Python library NetworkX \cite{WEBSITE:networkx} due to its huge availability of function and tools.
+Even though ArangoDB allows fast queries it is necessary the right tool to study the characteristics of a resulting subnet. For this purpose we decided to exploit mainly the Python library NetworkX \cite{WEBSITE:networkx} due to its huge availability of function and tools.
 
 \section{Pipeline}
 Now we describe a typical usage case and all the operations needed to extract a subgraph in ArangoDB.
@@ -62,7 +62,7 @@ read_gexf(db,
 
 The funcion takes the information about nodes and edges from the gexf file and creates the corrispondent  collections on the ArangoDB engine. Then it returns two graphs: one python-arango type and one of networkx type.
 
-Once that the graph and the collections of nodes and edges are uploaded on Arango web interface we can proceede with futher analysis. For instance we can perform a graph traversal aimed to extract the first neighbours of a certain node.
+Once the graph and the collections of nodes and edges are uploaded on Arango web interface we can proceed with futher analysis. For instance, we can perform a graph traversal aimed to extract the first neighbours of a certain node.
 
 In this case we can make use of python-arango, calling the function:
 
@@ -78,7 +78,7 @@ first_neighbours = traverse(db,
          vertex_uniqueness='global')
 \end{verbatim}
 
-Tuning the given parameters actually every traversal could be performed. The ouput of this type of function is meant to be the resulting sub net saved as Python dictionaries containing vertex and the path crossed by the traverse.
+Tuning the given parameters, any traversal could be performed. The ouput of this type of function is meant to be the resulting sub net saved as Python dictionaries containing vertex and the path crossed by the traverse.
 
 Having the list of the first neighbours we can obtain the corresponding subnet just using the function \texttt{subgraph} given by Networkx:
 
@@ -100,8 +100,7 @@ for node in Nx_Sub_Net:
                      {node : attr})
 \end{verbatim}
 
-The last thing to do is to import the subnet in ArangoDB, using the two specific functions  \texttt{nx\_to\_arango} and \texttt{eport\_to\_arango}:
-
+The last thing to do is to import the subnet in ArangoDB, using the two specific functions  \verb nx_to_arango  and \verb export_to_arango , for this passage is better and easier to convert the data in the node\_link\_data format:
 
 \begin{verbatim}
 sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
@@ -113,27 +112,52 @@ Sub_Net = pa.export_to_arango(db,
                   'Sub_Graph')
 \end{verbatim}
 
-Now the resulting subnet is ready for every kind of analysis offered by NetworkX. This is a usefull procedure to extract articulated subnet even on big non-relational base. Managing a huge amount of information is in fact one of the weak points of a straight NetworkX build.
-
-
+Now the resulting subnet is ready for every kind of analysis offered by NetworkX. This is a usefull procedure to extract articulated subnet even on big non-relational base. 
+Managing a huge amount of information is in fact one of the weak points of a straight NetworkX build.
 
 \section{Timing}
-As just mentioned one of the main focuses is to apply queris to very big networks.Therefore a study on how the time spent to perform a query scales with the increase in dimension of the network under analysis was necessary. Hence we detected three different traversals to be performed on several graphs with similar characteristics but different dimensions.
+As already mentioned, one of the main focuses is to apply queries to very big networks. 
+Therefore a study on how the time spent to perform a query scales with graph's dimension was necessary. 
+Hence we chose two different queries to be performed on several graphs with similar characteristics but different dimensions.
 
-We created random graphs with a number of nodes ranging from 100 to 10000, using the NetworkX function \texttt{fast\_gnp\_random\_graph}. Then we runned the queries under study onto 10 different graphs for each number of nodes, in order to obtain an average value and an idea of its dispersion. The plots of one of theese time series is reported below in
-Figure \ref{fig:1}.
+The queries taken into consideration are the traversal that extract the second neighbours (\verb min_depth=0  \verb max_depth=2 ) and the first four shortest path between two random nodes .
 
-\begin{figure}[ht]
+We created random graphs with a number of nodes ranging from 100 to 10000, using the NetworkX function \verb fast_gnp_random_graph . 
+One important factor is the number of link: infact, a dense networks with such an high number of nodes is impossible to handle for a home computer. 
+So, we chose to generate random graphs with $\rho = 0.075$, which come from the analysis of the real case we tested the algorithms on.
+
+We runned the queries under study onto 30 different starting nodes, in order to obtain an average value and an idea of its deviation.
+
+\paragraph{In results}
+We performed a linear fitting on the sampled data and a quite linear relationship emerged in each case, with an R$^2$ coefficient always $ \geq 0.9$. From this analysis we can infere the behaviour with  [Express better this concept]
+
+\section{Results}
+
+
+
+\begin{figure}[ht!]
   \includegraphics[width=\linewidth]{images/4_shortest_path_timing.png}
-  \caption{\small{\textit{Boccaccio: "Times"}}}
+  \caption{\small{\textit{Timing trend of the extraction of the first 4 shortest paths beween two random nodes. The mean is calculated for 30 different couples on the same graph.}}}
   \label{fig:1}
 \end{figure}
 
-We performed a linear fitting on the sampled data and a quite linear relationship emerged in each case, with an R$^2$ coefficient always $ \geq 0.9$. From this analysis we can extrapolate the behaviour facing an arbitrary big network dimension [Express better this concept]
+\begin{figure}[ht]
+   \includegraphics[width=\linewidth]{images/traverse_0_2.png}
+   \caption{\small{\textit{Timing trend of the second neighbours extraction query. The mean is calculated for 30 different starting nodes on the same graph.}}}
+   \label{fig:2}
+\end{figure}
 
-[Does it worth to mention the "exponential" sampling technique? I think we could overfly on it.]
+\begin{figure}[ht]
+   \includegraphics[width=\linewidth]{images/Sym_Net_crop.png}
+   \caption{\small{\textit{ArangoDB visualization tool: in this figure we show a random branch of SymtomsNet, a graph of symtoms and disease.}}}
+   \label{fig:3}
+\end{figure}
 
-\section{Results}
+\begin{figure}[ht]
+   \includegraphics[width=\linewidth]{images/neigh_emicrania.png}
+   \caption{\small{\textit{ArangoDB visualization tool: in this figure we show the network of first neighbours of \textit{emicrania} (cronic headache).}}}
+   \label{fig:4}
+\end{figure}
 
 \section{Conclusions}
 
@@ -145,6 +169,8 @@ As shown in the results, the scaling of the ArangoDB query algorithm is linear f
 
 The main problems lie in the level of control we can gather through python. Indeed, it seems to be impossible to load and save default queries.
 Moreover, we couldn't manage to save graph visualization options, which could ease the accessibility.
+
+Another issue, come from the slowness of the export to arango algorithm, but since it's a \textit{una tantum} operation, it isn't a priority. 
 
 \paragraph{Future Ideas}
 
