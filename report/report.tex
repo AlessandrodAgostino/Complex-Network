@@ -123,14 +123,14 @@ Hence we chose two different queries to be performed on several graphs with simi
 The queries taken into consideration are the traversal that extract the second neighbours (\verb min_depth=0  \verb max_depth=2 ) and the first four shortest path between two random nodes .
 
 We created random graphs with a number of nodes ranging from 100 to 10000, using the NetworkX function \verb fast_gnp_random_graph . 
-One important factor is the number of link: infact, a dense networks with such an high number of nodes is impossible to handle for a home computer. 
-So, we chose to generate random graphs with $\rho = 0.075$, which come from the analysis of the real case we tested the algorithms on.
+One important factor is the number of links: infact, a dense networks with such an high number of nodes is impossible to handle for a home computer. 
+So, we chose to generate random graphs with $\rho = 0.075$, which comes from the analysis of the real case we tested the algorithms on.
 
-We runned the queries under study onto 30 different starting nodes, in order to obtain an average value, its deviation and a idea of its trend
+We runned the queries under study onto 30 different starting nodes, in order to obtain an average value, its deviation and a idea of its trend.
 
 \section{Results}
 
-in the following section, we present the data obtained for timing, and an example on the visualization of a network and a sub-network through ArangoDB web interface.  
+In the following section, we present the data obtained for timing, and an example on the visualization of a network and a sub-network through ArangoDB web interface.  
 
 \paragraph{Performances}
 In figure \ref{fig:1} we present the trend of times with respect to number of nodes, for the algorithm that find the 4 shortest paths between two nodes. We performed a linear fitting on the sampled data and a linear relationship emerged in this case, with $R^2 = 0.957$.
@@ -141,7 +141,7 @@ In figure \ref{fig:1} we present the trend of times with respect to number of no
   \label{fig:1}
 \end{figure}
 
-In figure \ref{fig:2}, we show the trend of times with respect to the dimensions of the network for the traversal that extract the second order neighbours of a chosen node. e performed a linear fitting on the sampled data and it seem to show a linear relathionship also this case, with $R^2 = 0.94$.
+In figure \ref{fig:2}, we show the trend of times with respect to the dimensions of the network for the traversal that extract the second order neighbours of a chosen node. We performed a linear fitting on the sampled data and it seems to show a linear relathionship also in this case, with $R^2 = 0.94$.
 
 \begin{figure}[ht!]
    \includegraphics[width=\linewidth]{images/traverse_0_2.png}
@@ -156,7 +156,7 @@ In figure \ref{fig:3} we show an example of visualization of a random branch of 
 
 \begin{figure}[ht!]
    \includegraphics[width=\linewidth]{images/Sym_Net_crop.png}
-   \caption{\small{\textit{ArangoDB visualization tool: in this figure we show a random branch of SymtomsNet, a graph of symtoms and disease.}}}
+   \caption{\small{\textit{ArangoDB visualization tool: in this figure we show a random branch of SymptomsNet, a graph of symptoms and diseases.}}}
    \label{fig:3}
 \end{figure}
 
@@ -168,17 +168,17 @@ in figure \ref{fig:4} is shown the subnetwork of the nearest neighbours of "emic
    \label{fig:4}
 \end{figure}
 
-In the case of a multipartite graph, object from different class ca be visualized with different colours.
+In the case of a multipartite graph, objects from different classes can be visualized with different colours.
 
 \section{Conclusions}
 
 We've produced an applicative to visualize and efficiently query a graph-like database with a simple yet resourceful programming language like python.
 
-As shown in the results, the scaling of the ArangoDB query algorithm seems linear for the two cases taken into consideration, k shortest path and neighborood search. This is promising for future application in large dataset.
+As shown in the results, the scaling of the ArangoDB query algorithm seems linear for the two cases taken into consideration, $k$ shortest paths and neighborhood search. This is promising for future application in large dataset.
 
 \paragraph{Problems}
 
-The main problems lie in the level of control we can gather through python. Indeed, it seems to be impossible to load and save default queries.
+The main problems lay in the level of control we can gather through python. Indeed, it seems to be impossible to load and save default queries.
 Moreover, we couldn't manage to save graph visualization options, which could ease the accessibility.
 
 Another issue, come from the slowness of the export to arango algorithm, but since it's a \textit{una tantum} operation, it isn't a priority. 
