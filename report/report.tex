@@ -126,14 +126,14 @@ We created random graphs with a number of nodes ranging from 100 to 10000, using
 One important factor is the number of link: infact, a dense networks with such an high number of nodes is impossible to handle for a home computer. 
 So, we chose to generate random graphs with $\rho = 0.075$, which come from the analysis of the real case we tested the algorithms on.
 
-We runned the queries under study onto 30 different starting nodes, in order to obtain an average value and an idea of its deviation.
-
-\paragraph{In results}
-We performed a linear fitting on the sampled data and a quite linear relationship emerged in each case, with an R$^2$ coefficient always $ \geq 0.9$. From this analysis we can infere the behaviour with  [Express better this concept]
+We runned the queries under study onto 30 different starting nodes, in order to obtain an average value, its deviation and a idea of its trend
 
 \section{Results}
 
+in the following section, we present the data obtained for timing, and an example on the visualization of a network and a sub-network through ArangoDB web interface.  
 
+\paragraph{Performances}
+In figure \ref{fig:1} we present the trend of times with respect to number of nodes, for the algorithm that find the 4 shortest paths between two nodes. We performed a linear fitting on the sampled data and a linear relationship emerged in this case, with $R^2 = 0.957$.
 
 \begin{figure}[ht!]
   \includegraphics[width=\linewidth]{images/4_shortest_path_timing.png}
@@ -141,29 +141,40 @@ We performed a linear fitting on the sampled data and a quite linear relationshi
   \label{fig:1}
 \end{figure}
 
-\begin{figure}[ht]
+In figure \ref{fig:2}, we show the trend of times with respect to the dimensions of the network for the traversal that extract the second order neighbours of a chosen node. e performed a linear fitting on the sampled data and it seem to show a linear relathionship also this case, with $R^2 = 0.94$.
+
+\begin{figure}[ht!]
    \includegraphics[width=\linewidth]{images/traverse_0_2.png}
    \caption{\small{\textit{Timing trend of the second neighbours extraction query. The mean is calculated for 30 different starting nodes on the same graph.}}}
    \label{fig:2}
 \end{figure}
 
-\begin{figure}[ht]
+\newpage
+
+\paragraph{Visualization}
+In figure \ref{fig:3} we show an example of visualization of a random branch of the network used as testing ground for the API.
+
+\begin{figure}[ht!]
    \includegraphics[width=\linewidth]{images/Sym_Net_crop.png}
    \caption{\small{\textit{ArangoDB visualization tool: in this figure we show a random branch of SymtomsNet, a graph of symtoms and disease.}}}
    \label{fig:3}
 \end{figure}
 
-\begin{figure}[ht]
+in figure \ref{fig:4} is shown the subnetwork of the nearest neighbours of "emicrania", extracted using the pipeline descripted above: 
+
+\begin{figure}[ht!]
    \includegraphics[width=\linewidth]{images/neigh_emicrania.png}
    \caption{\small{\textit{ArangoDB visualization tool: in this figure we show the network of first neighbours of \textit{emicrania} (cronic headache).}}}
    \label{fig:4}
 \end{figure}
 
+In the case of a multipartite graph, object from different class ca be visualized with different colours.
+
 \section{Conclusions}
 
 We've produced an applicative to visualize and efficiently query a graph-like database with a simple yet resourceful programming language like python.
 
-As shown in the results, the scaling of the ArangoDB query algorithm is linear for the two cases taken into consideration, k shortest path and neighborood search. This is promising for future application in large dataset.
+As shown in the results, the scaling of the ArangoDB query algorithm seems linear for the two cases taken into consideration, k shortest path and neighborood search. This is promising for future application in large dataset.
 
 \paragraph{Problems}
 
