@@ -3,8 +3,9 @@
 \usepackage[english]{babel}
 \usepackage{pdfpages}
 \usepackage{hyperref}
-
+\usepackage{float}
 \usepackage{verbatim}
+\usepackage{balance}
 
 \title{Network Analysis in ArangoDB}
 \date{January 2020}
@@ -171,6 +172,7 @@ In figure \ref{fig:4} instead the subnetwork of the nearest neighbours of the no
 In the case of a multipartite graph, objects from different classes can be visualized with different colours.
 
 \section{Conclusions}
+\balance
 We've produced an applicative to visualize and efficiently query a graph-like database with a simple yet resourceful programming language like python.
 
 As shown in the results, the scaling of the ArangoDB query algorithm seems linear for the two cases taken into consideration, $k$ shortest paths and neighborhood search. This is promising for future application in large dataset.
