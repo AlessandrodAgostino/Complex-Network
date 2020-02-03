@@ -17,15 +17,12 @@ db     = client.db('_system', username=username, password=password)
 
 nx_graph = rgexf('../data/multipartite.gexf')
 graph    = nx.node_link_data(nx_graph)
-
 nodes = list(nx_graph.nodes(data=True))
-
 edges = list(nx_graph.edges(data= True))
-
-nodes[int(edges[0][0])][1]['subset']
 
 classes = {}
 
+#now insert each node in their collections
 for n,data in nx_graph.nodes(data=True):
     collection_name = 'collection_'+str(data['subset'])
     nodes_collection = pa.check_create_empty_collection(db, collection_name, truncate = False)
@@ -35,6 +32,7 @@ for n,data in nx_graph.nodes(data=True):
 
 edges_collection = pa.check_create_empty_collection(db=db,collection_name = "edges", edge=True)
 
+#now insert the edges in the edge collection and the attributes from and to with the right classes
 for n,ed in enumerate(nx_graph.edges(data=True)):
     ed[2]['_key']  = 'E'+str(n)
     ed[2]['_from'] =  classes[nx_graph.nodes[ed[0]]['subset']] + '/' + str(ed[0])
@@ -42,4 +40,4 @@ for n,ed in enumerate(nx_graph.edges(data=True)):
     edges_collection.insert(ed[2])
 
 net = pa.check_create_empty_graph(db=db, graph_name="multipartite")
-net.create_edge_definition("edges", ["collection_0","collection_1","collection_2"],["collection_0","collection_1","collection_2"])
+net.create_edge_definition("edges", list(classes.values()),list(classes.values()))
