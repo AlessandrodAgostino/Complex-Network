@@ -18,7 +18,7 @@
 \maketitle
 
 \begin{abstract}
-The project aim is to develop a simple python API that let the user interact with the open-source multi-model database ArangoDB to perform fast queries on multi-partite graphs, extract and visualize sub-network which can then be analized with powerful python libraries.
+The project aim is to develop a simple python API that let the user interact with the open-source multi-model database ArangoDB to perform fast queries on \colorbox{yellow}{multi-partite} graphs, extract and visualize sub-network which can then be analized with powerful python libraries.
 The study also includes results on the computational efficiency of ArangoDB's algorithms, in order to have an estimate of the API timing behaviours with large networks.
 \end{abstract}
 \end{@twocolumnfalse}
@@ -27,10 +27,10 @@ The study also includes results on the computational efficiency of ArangoDB's al
 \section{Introduction}
 ArangoDB \cite{WEBSITE:arangodb} is a multi-model, open-source database with flexible data models for documents, graphs and key-values. It is being used in different fields: from semantic analysis to genome studies.
 
-In the present work we employed the library \verb python-arango  \cite{WEBSITE:pythonarango} to import and export multipartite network-like databases, that are defined as collections of documents (nodes) and collections of relationships between them (edges).
+In the present work we employed the library \texttt{python-arango}  \cite{WEBSITE:pythonarango} to import and export multipartite network-like databases, that are defined as collections of documents (nodes) and collections of relationships between them (edges).
 
-In particular, a document is a python dictionary with a mandatory \verb _id  key assigned to a unique value.
-What we call an "edge" is also a python dictionary, but with an \verb _id , \verb _source  and \verb _target  voices, to specify not only the linked nodes, but also the direction of said link in the case of directed graphs.
+In particular, a document is a python dictionary with a mandatory  \texttt{\_id}  key assigned to a unique value.
+What we call an "edge" is also a python dictionary, but with an  \texttt{\_id} ,  \texttt{\_source} and  \texttt{\_target}  voices, to specify not only the linked nodes, but also the direction of said link in the case of directed graphs.
 
 \paragraph{Graph Object}
 A Graph is the combination of at least one node collection and one or multiple edge collections, called edge definitions.
@@ -112,44 +112,44 @@ Sub_Net = pa.export_to_arango(db,
                   'Sub_Graph')
 \end{verbatim}
 
-Now the resulting subnet is ready for every kind of analysis offered by NetworkX. This is a useful procedure to extract articulated subnets even on big non-relational base. 
+Now the resulting subnet is ready for every kind of analysis offered by NetworkX. This is a useful procedure to extract articulated subnets even on big non-relational base.
 Managing a huge amount of information is infact one of the weak points of a straight NetworkX build.
 
 \section{Timing}
-As already mentioned, one of the main focuses is to apply queries to very big networks. 
-Therefore a study on how the time spent to perform a query scales with graph's dimension was necessary. 
-Hence we chose two different queries to be performed on several graphs with similar characteristics but different dimensions.
+As already mentioned, one of the main focuses is to apply queries to very big networks.
+Therefore a study on how the time spent to perform a query scales with graph's dimension was necessary.
+Hence we chose two different queries to be performed on several graphs with similar characteristics but increasing dimensions.
 
 The queries taken into consideration are the traversal that extract the second neighbours (\verb min_depth=0  \verb max_depth=2 ) and the first four shortest path between two random nodes .
 
-We created random graphs with a number of nodes ranging from 100 to 10000, using the NetworkX function \verb fast_gnp_random_graph . 
-One important factor is the number of links: infact, a dense networks with such an high number of nodes is impossible to handle for a home computer. 
+We created random graphs with a number of nodes ranging from 100 to 10000, using the NetworkX function \verb fast_gnp_random_graph .
+One important factor is the number of links: infact, a dense networks with such an high number of nodes is impossible to handle for a home computer.
 So, we chose to generate random graphs with $\rho = 0.075$, which comes from the analysis of the real case we tested the algorithms on.
 
 We runned the queries under study onto 30 different starting nodes, in order to obtain an average value, its deviation and a idea of its trend.
 
 \section{Results}
 
-In the following section, we present the data obtained for timing, and an example on the visualization of a network and a sub-network through ArangoDB web interface.  
+In the following section, we present the data obtained for timing, and an example on the visualization of a network and a sub-network through ArangoDB web interface.
 
 \paragraph{Performances}
-In figure \ref{fig:1} we present the trend of times with respect to number of nodes, for the algorithm that find the 4 shortest paths between two nodes. We performed a linear fitting on the sampled data and a linear relationship emerged in this case, with $R^2 = 0.957$.
+In figure \ref{fig:sh_paths} we present the trend of times with respect to number of nodes, for the algorithm that find the 4 shortest paths between two nodes. We performed a linear fitting on the sampled data and a linear relationship emerged in this case, with $R^2 = 0.957$.
 
 \begin{figure}[ht!]
-  \includegraphics[width=\linewidth]{images/4_shortest_path_timing.png}
-  \caption{\small{\textit{Timing trend of the extraction of the first 4 shortest paths beween two random nodes. The mean is calculated for 30 different couples on the same graph.}}}
-  \label{fig:1}
+  \includegraphics[width=\linewidth]{images/4_shortest_path_timing_readable.png}
+  \caption{\small{\textit{Timing trend for the query that extracts the first 4 shortest paths beween two random nodes. The mean is computed for 30 different couples on the same graph.}}}
+  \label{fig:sh_paths}
 \end{figure}
 
-In figure \ref{fig:2}, we show the trend of times with respect to the dimensions of the network for the traversal that extract the second order neighbours of a chosen node. We performed a linear fitting on the sampled data and it seems to show a linear relathionship also in this case, with $R^2 = 0.94$.
+In figure \ref{fig:tr_0_2}, we show the trend of times with respect to the dimensions of the network for the traversal that extract the second order neighbours of a chosen node. We performed a linear fitting on the sampled data and it seems to show a linear relathionship also in this case, with $R^2 = 0.94$.
 
 \begin{figure}[ht!]
-   \includegraphics[width=\linewidth]{images/traverse_0_2.png}
+   \includegraphics[width=\linewidth]{images/traverse_0_2_readable.png}
    \caption{\small{\textit{Timing trend of the second neighbours extraction query. The mean is calculated for 30 different starting nodes on the same graph.}}}
-   \label{fig:2}
+   \label{fig:tr_0_2}
 \end{figure}
 
-\newpage
+From the analysis of both the two different Benchmark series we found that the time took by the queries apparently scales linearly with the graph dimension. This is a useful information and allow to make prediction based on the particular graph under analysis.
 
 \paragraph{Visualization}
 In figure \ref{fig:3} we show an example of visualization of a random branch of the network used as testing ground for the API.
@@ -160,7 +160,7 @@ In figure \ref{fig:3} we show an example of visualization of a random branch of 
    \label{fig:3}
 \end{figure}
 
-in figure \ref{fig:4} is shown the subnetwork of the nearest neighbours of "emicrania", extracted using the pipeline descripted above: 
+In figure \ref{fig:4} instead the subnetwork of the nearest neighbours of the nodes with label \textit{emicrania} is shown, extracted using the pipeline descripted above.
 
 \begin{figure}[ht!]
    \includegraphics[width=\linewidth]{images/neigh_emicrania.png}
@@ -171,17 +171,16 @@ in figure \ref{fig:4} is shown the subnetwork of the nearest neighbours of "emic
 In the case of a multipartite graph, objects from different classes can be visualized with different colours.
 
 \section{Conclusions}
-
 We've produced an applicative to visualize and efficiently query a graph-like database with a simple yet resourceful programming language like python.
 
 As shown in the results, the scaling of the ArangoDB query algorithm seems linear for the two cases taken into consideration, $k$ shortest paths and neighborhood search. This is promising for future application in large dataset.
 
-\paragraph{Problems}
+\paragraph{Open Problems}
 
 The main problems lay in the level of control we can gather through python. Indeed, it seems to be impossible to load and save default queries.
 Moreover, we couldn't manage to save graph visualization options, which could ease the accessibility.
 
-Another issue, come from the slowness of the export to arango algorithm, but since it's a \textit{una tantum} operation, it isn't a priority. 
+Another issue, come from the slowness of the export to arango algorithm, but since it's a \textit{una tantum} operation, it isn't a priority.
 
 \paragraph{Future Ideas}
 

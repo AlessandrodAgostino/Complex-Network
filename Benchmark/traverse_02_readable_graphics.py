@@ -7,7 +7,7 @@ import seaborn as sns
 sns.set_style(style='darkgrid')
 
 # Import data from csv through pandas
-bench_table = pd.read_csv('Benchmark/csv/4_shortest_path.csv', sep='\t', index_col=0)
+bench_table = pd.read_csv('Benchmark/csv/traverse_0_2.csv', sep='\t', index_col=0)
 # upload_table = pd.read_csv('csv/traverse_0_2_upload.csv', sep='\t', index_col=0)
 
 # Computing mean and std deviation of 'Run Time (s)' grouping the data by 'Nodes Number'
@@ -26,7 +26,7 @@ plt.fill_between(node_numbers, mean+std, mean-std, alpha=0.5)
 plt.plot(node_numbers, intercept + slope*np.asarray(node_numbers), 'r')
 plt.xlabel('Number of nodes', fontsize = 25)
 plt.ylabel('Run Time (s)', fontsize = 25)
-plt.title('First 4 shortest path query timing', fontsize=30)
+plt.title('Traverse toward $2^{nd}$ neighbours', fontsize=30)
 
 ax = plt.gca()
 ticks_size = 25
@@ -42,10 +42,10 @@ textstr = '\n'.join(('$y(x) = a + bx$',
                     f'$R^2$ = {r_value**2:.3}'))
 
 
-plt.text(0, 0.14,
+plt.text(0, 0.10,
          s=textstr,
          fontsize=20,
          verticalalignment='top',
          bbox = dict(boxstyle='square', alpha=0.3));
-plt.savefig('Benchmark/4_shortest_path_timing_readable.png')
+plt.savefig('Benchmark/traverse_0_2_readable.png')
 #%%
