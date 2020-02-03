@@ -29,10 +29,10 @@ db     = client.db('_system', username=username, password=password)
 # path of the file where orinal data are stored
 # in atom this is bit strange actually.
 filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'SymptomsNet.gexf')
-
+filename= '../data/multipartite.gexf'
 # This function read a gexf file and create two
 # collections (edge, node) and a graph in database db.
-Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,
+Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,multipartite = True,
                        nodes_collection_name='Sym_Deas',
                        edges_collection_name='Sym_Deas_edges',
                        graph_name='Sym_Net')

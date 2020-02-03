@@ -16,7 +16,7 @@ db     = client.db('_system', username=username, password=password)
 #%%
 
 nx_graph = rgexf('../data/multipartite.gexf')
-graph    = nx.node_link_data(nx_graph)
+#graph    = nx.node_link_data(nx_graph)
 nodes = list(nx_graph.nodes(data=True))
 edges = list(nx_graph.edges(data= True))
 

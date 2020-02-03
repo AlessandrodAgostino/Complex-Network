@@ -207,7 +207,7 @@ def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection
 
   return net
 
-def read_gexf(db, filename,
+def read_gexf(db, filename,multipartite = False,
               nodes_collection_name='nodes',
               edges_collection_name='edges',
               graph_name='Net'):
@@ -235,16 +235,43 @@ def read_gexf(db, filename,
   nx_graph = rgexf(filename)
   # this thing actually doubles the used RAM, it could be better to remove it.
   graph    = node_link_data(nx_graph)
+  if not multipartite:
+      # add _key, _to and _from, for ArangoDB
+      graph = nx_to_arango(graph, nodes_collection_name)
+      Net   = export_to_arango(db,
+                               graph,
+                               nodes_collection_name,
+                               edges_collection_name,
+                               graph_name)
 
-  # add _key, _to and _from, for ArangoDB
-  graph = nx_to_arango(graph, nodes_collection_name)
-  Net   = export_to_arango(db,
-                           graph,
-                           nodes_collection_name,
-                           edges_collection_name,
-                           graph_name)
+      return Net, nx_graph
+  else:
+      nodes = list(nx_graph.nodes(data=True))
+      edges = list(nx_graph.edges(data= True))
 
-  return Net, nx_graph
+      classes = {}
+
+      #now insert each node in their collections
+      for n,data in nx_graph.nodes(data=True):
+          collection_name = 'collection_'+str(data['subset'])
+          nodes_collection = check_create_empty_collection(db, collection_name, truncate = False)
+          data['_key'] = unidecode.unidecode(str(data['label']))
+          nodes_collection.insert(data)
+          classes[data['subset']] = 'collection_'+str(data['subset'])
+
+      edges_collection = check_create_empty_collection(db=db,collection_name = "edges", edge=True)
+
+      #now insert the edges in the edge collection and the attributes from and to with the right classes
+      for n,ed in enumerate(nx_graph.edges(data=True)):
+          ed[2]['_key']  = 'E'+str(n)
+          ed[2]['_from'] =  classes[nx_graph.nodes[ed[0]]['subset']] + '/' + str(ed[0])
+          ed[2]['_to']   =  classes[nx_graph.nodes[ed[1]]['subset']] + '/' + str(ed[1])
+          edges_collection.insert(ed[2])
+
+      net = check_create_empty_graph(db=db, graph_name="multipartite")
+      net.create_edge_definition("edges", list(classes.values()),list(classes.values()))
+      return graph, nx_graph
+
 
 def k_shortest_path(db, node1, node2, graph_name, k=1):
   '''
