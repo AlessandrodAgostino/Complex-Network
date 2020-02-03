@@ -150,7 +150,8 @@ In figure \ref{fig:tr_0_2}, we show the trend of times with respect to the dimen
    \label{fig:tr_0_2}
 \end{figure}
 
-From the analysis of both the two different Benchmark series we found that the time took by the queries apparently scales linearly with the graph dimension. This is a useful information and allow to make prediction based on the particular graph under analysis.
+From the analysis of both the two different Benchmark series we found that the time took by the queries apparently scales linearly with the graph dimension. 
+This is a useful information and allow to make prediction based on the particular graph under analysis.
 
 \paragraph{Visualization}
 In figure \ref{fig:3} we show an example of visualization of a random branch of the network used as testing ground for the API.
@@ -172,7 +173,7 @@ In figure \ref{fig:4} instead the subnetwork of the nearest neighbours of the no
 In the case of a multipartite graph, objects from different classes can be visualized with different colours.
 
 \section{Conclusions}
-\balance
+\balance % ci sta
 We've produced an applicative to visualize and efficiently query a graph-like database with a simple yet resourceful programming language like python.
 
 As shown in the results, the scaling of the ArangoDB query algorithm seems linear for the two cases taken into consideration, $k$ shortest paths and neighborhood search. This is promising for future application in large dataset.
