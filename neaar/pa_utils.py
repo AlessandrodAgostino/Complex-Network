@@ -270,7 +270,7 @@ def read_gexf(db, filename,multipartite = False,
 
       net = check_create_empty_graph(db=db, graph_name="multipartite")
       net.create_edge_definition("edges", list(classes.values()),list(classes.values()))
-      return graph, nx_graph
+      return net, nx_graph
 
 
 def k_shortest_path(db, node1, node2, graph_name, k=1):
