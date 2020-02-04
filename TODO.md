@@ -1,9 +1,6 @@
 #### In order of priority, list of thing someone should do:
 
-  * [ ] Performance study for arangodb query.
-    - Parameters?
-    - How many repeat?
-    - Which library to use? For now time seems ok
-  * [ ] Export MultiGraph from python
-  * [ ] Try to study some subnetwork.
+  * [x] Performance study for arangodb query.
+  * [x] Export MultiGraph from python
   * [ ] Make code as simple as possible.
+  * [ ] Complete README.md
