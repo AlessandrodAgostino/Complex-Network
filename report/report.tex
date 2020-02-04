@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{verbatim}
 \usepackage{balance}
+\usepackage{graphicx}
 
 \title{Network Analysis in ArangoDB}
 \date{January 2020}
@@ -19,7 +20,7 @@
 \maketitle
 
 \begin{abstract}
-The project aim is to develop a simple python API that let the user interact with the open-source multi-model database ArangoDB to perform fast queries on \colorbox{yellow}{multi-partite} graphs, extract and visualize sub-network which can then be analized with powerful python libraries.
+The project aim is to develop a simple python API that let the user interact with the open-source multi-model database ArangoDB to perform fast queries on multi-partite graphs, extract and visualize sub-network which can then be analized with powerful python libraries.
 The study also includes results on the computational efficiency of ArangoDB's algorithms, in order to have an estimate of the API timing behaviours with large networks.
 \end{abstract}
 \end{@twocolumnfalse}
@@ -42,9 +43,15 @@ The former is possible thanks to ArangoDB web interface, as shown in the figures
 For the latter we relied on the poweful AQL, that is the query language implemented in arango. It is used to execute different kind of "search" through the graph, and select nodes and edges.
 
 \paragraph{Why ArangoDB?}
-ArangoDB resulted to be the NoQL engine with the most favorable compromise between memory usage and computation speed among others available alternatives. (CHIEDERE TABELLA CON LE PRESTAZIONI A NICO)
+ArangoDB resulted to be the NoQL engine with the most favorable compromise between memory usage and computation speed among others available alternatives. A comparative table of the performance of different NoQl engines is reported in figure \ref{fig:tab}
 ArangoDB offers a valid web interface where all the commands could be given intuitively and graph and queries' results could be visualized in an organic way.
 Furthermore there are several ArangoDB Python interfaces available on line, which allowed us to taylor this poweful tool to our needs.
+
+\begin{figure}[ht!]
+\includegraphics[width=\columnwidth]{images/arango_perf.pdf}
+\caption{\small{\textit{Comparison between time performances of different NoQl engines for some common operation. ArnagoDB shows the overall best results. }}}
+\label{fig:tab}
+\end{figure}
 
 \paragraph{NetworkX}
 Even though ArangoDB allows fast queries it is necessary the right tool to study the characteristics of a resulting subnet. For this purpose we decided to exploit mainly the Python library NetworkX \cite{WEBSITE:networkx} due to its huge availability of function and tools.
@@ -104,10 +111,12 @@ for node in Nx_Sub_Net:
 The last thing to do is to import the subnet in ArangoDB, using the two specific functions  \verb nx_to_arango  and \verb export_to_arango , for this passage is better and easier to convert the data in the node\_link\_data format:
 
 \begin{verbatim}
-sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
-sub_net = pa.nx_to_arango(sub_net, 'Sub_Net')
+sub_net =
+    nx.readwrite.node_link_data(Nx_Sub_Net)
+sub_net =
+    pa.nx_to_arango(sub_net, 'Sub_Net')
 Sub_Net = pa.export_to_arango(db,
-                  sub_net ,
+                  msub_net,
                   'Sub_Net',
                   'Sub_Net_edges',
                   'Sub_Graph')
@@ -150,7 +159,7 @@ In figure \ref{fig:tr_0_2}, we show the trend of times with respect to the dimen
    \label{fig:tr_0_2}
 \end{figure}
 
-From the analysis of both the two different Benchmark series we found that the time took by the queries apparently scales linearly with the graph dimension. 
+From the analysis of both the two different Benchmark series we found that the time took by the queries apparently scales linearly with the graph dimension.
 This is a useful information and allow to make prediction based on the particular graph under analysis.
 
 \paragraph{Visualization}
