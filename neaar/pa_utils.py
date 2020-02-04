@@ -6,6 +6,7 @@ import json
 
 from networkx import read_gexf as rgexf
 from networkx.readwrite import node_link_data
+from networkx import set_node_attributes
 import unidecode
 
 from math import log, ceil
@@ -47,7 +48,7 @@ def saveCollection(db, name, filename):
   else :
     print(f'Collection {name} does not exist in this database')
 
-def check_create_empty_collection(db, collection_name, edge=False, truncate = True):
+def check_create_empty_collection(db, collection_name, edge=False, truncate=True):
   '''
   Check if a collection "collection_name" exist or not. If the former is true,
   truncate (empty) the collection, or else it will create a new one
@@ -120,7 +121,7 @@ def first_neighbours(db, starting_node, nodes_collection, edges_collection, resu
     aql += ' INSERT v IN @@result INSERT e in @@result_edges'
     db.aql.execute(aql, bind_vars=bind_vars)
 
-def get_vertex(db, filter, collection_name):
+def get_vertex(db, filter, collection_names):
   '''
   This function search an ArangoDB collection for a document that satisfy
   filter conditions.
@@ -128,15 +129,22 @@ def get_vertex(db, filter, collection_name):
   Parameters:
     db : Arango databases, result of the function client.db of python-arango.
     filter : python dictionary, list of conditions.
-    collection_name : string, the collection in which the reaserch is perfomed.
+    collection_names : iterables of strings, the collections in which the reaserch is perfomed.
 
   return:
-    a list of document (dictionaries).
+    the document of the searched vertex .
   '''
+  for collection in collection_names:
+      cursor = db.collection(collection).find(filter)
+      if cursor.empty():
+          pass
+      else:
+          return cursor.next()
 
-  return db.collection(collection_name).find(filter).next()
+  #raise ValueError('ciao')#'node with {} not found'.format(filter))
+  return []
 
-def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
+def traverse(db, starting_node, graph_name, **kwargs):
   '''
   This function is basically a wrap of the traverse function of python-arango.
   The only difference is that it let you choose the starting node by its name.
@@ -145,8 +153,6 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
     db : Arango databases, result of the function client.db of python-arango
     starting_node : id of the starting node from which the traverse starts. It
                     can be any type, but the document must have an 'id' key.
-    nodes_collection_name : string, name of the collection of nodes from which the
-                            informations on "starting_node" are taken.
     graph_name : string, name of the graph in which the traverse is performed.
     **kwargs   : dictionary of all the arguments that python-arango traverse may accept
                  see :
@@ -159,9 +165,9 @@ def traverse(db, starting_node, nodes_collection_name, graph_name, **kwargs):
     Python list containing vertex and PATH crossed by the traverse.
   '''
 
-  node = get_vertex(db, {'id' : starting_node}, nodes_collection_name)
-  Net  = db.graph(graph_name)
-
+  Net = db.graph(graph_name)
+  collections = Net.vertex_collections()
+  node = get_vertex(db, {'label' : starting_node}, collections)
   result = Net.traverse(node, **kwargs)
 
   return result
@@ -207,7 +213,34 @@ def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection
 
   return net
 
-def read_gexf(db, filename,multipartite = False,
+def multipartite_to_arango(db, nx_graph, node_collection_name, edge_collection_name='multi_edges', graph_name='multipartite'):
+    
+      classes = {}
+
+      #now insert each node in their collections
+      for n,data in nx_graph.nodes(data=True):
+          collection_name = node_collection_name + '_' + str(data['subset'])
+          nodes_collection = check_create_empty_collection(db, collection_name, truncate=False)
+          data['_key'] = unidecode.unidecode(str(data['label']))
+          nodes_collection.insert(data)
+          classes[data['subset']] = node_collection_name + '_' + str(data['subset'])
+
+      edges_collection = check_create_empty_collection(db=db, collection_name=edge_collection_name, edge=True)
+
+      #now insert the edges in the edge collection and the attributes from and to with the right classes
+      for n,ed in enumerate(nx_graph.edges(data=True)):
+          ed[2]['_key']  = 'E'+str(n)
+          ed[2]['_from'] =  classes[nx_graph.nodes[ed[0]]['subset']] + '/' + str(ed[0])
+          ed[2]['_to']   =  classes[nx_graph.nodes[ed[1]]['subset']] + '/' + str(ed[1])
+          edges_collection.insert(ed[2])
+
+      net = check_create_empty_graph(db=db, graph_name=graph_name)
+      net.create_edge_definition(edge_collection_name, list(classes.values()), list(classes.values()))
+      
+      return net
+  
+
+def read_gexf(db, filename, multipartite=False,
               nodes_collection_name='nodes',
               edges_collection_name='edges',
               graph_name='Net'):
@@ -218,6 +251,7 @@ def read_gexf(db, filename,multipartite = False,
   Parameters:
     db       : Arango databases, result of the function client.db of python-arango
     filename : string, name of the .gexf file to be read
+    multipartite : bool,
     nodes_collection_name : string, default "nodes". Name of the collection in which nodes
                             informations are stored. Be carefull, if the collection already exists,
                             it will be truncated.
@@ -234,9 +268,10 @@ def read_gexf(db, filename,multipartite = False,
 
   nx_graph = rgexf(filename)
   # this thing actually doubles the used RAM, it could be better to remove it.
-  graph    = node_link_data(nx_graph)
+  
   if not multipartite:
       # add _key, _to and _from, for ArangoDB
+      graph    = node_link_data(nx_graph)
       graph = nx_to_arango(graph, nodes_collection_name)
       Net   = export_to_arango(db,
                                graph,
@@ -246,31 +281,8 @@ def read_gexf(db, filename,multipartite = False,
 
       return Net, nx_graph
   else:
-      nodes = list(nx_graph.nodes(data=True))
-      edges = list(nx_graph.edges(data= True))
-
-      classes = {}
-
-      #now insert each node in their collections
-      for n,data in nx_graph.nodes(data=True):
-          collection_name = 'collection_'+str(data['subset'])
-          nodes_collection = check_create_empty_collection(db, collection_name, truncate = False)
-          data['_key'] = unidecode.unidecode(str(data['label']))
-          nodes_collection.insert(data)
-          classes[data['subset']] = 'collection_'+str(data['subset'])
-
-      edges_collection = check_create_empty_collection(db=db,collection_name = "edges", edge=True)
-
-      #now insert the edges in the edge collection and the attributes from and to with the right classes
-      for n,ed in enumerate(nx_graph.edges(data=True)):
-          ed[2]['_key']  = 'E'+str(n)
-          ed[2]['_from'] =  classes[nx_graph.nodes[ed[0]]['subset']] + '/' + str(ed[0])
-          ed[2]['_to']   =  classes[nx_graph.nodes[ed[1]]['subset']] + '/' + str(ed[1])
-          edges_collection.insert(ed[2])
-
-      net = check_create_empty_graph(db=db, graph_name="multipartite")
-      net.create_edge_definition("edges", list(classes.values()),list(classes.values()))
-      return net, nx_graph
+     
+      return multipartite_to_arango(db, nx_graph, nodes_collection_name, edges_collection_name, graph_name), nx_graph
 
 
 def k_shortest_path(db, node1, node2, graph_name, k=1):
@@ -308,13 +320,24 @@ def subgraph(nodes_list, nx_graph, nodes_collection_name, nodes_subcollection_na
   Nx_Sub_Net = nx_graph.subgraph(nodes_list)
 
   for node in Nx_Sub_Net:
-    attr = pa.get_vertex(db, {'label': node}, nodes_collection_name)
-    nx.set_node_attributes(Nx_Sub_Net, {node : attr})
+    attr = get_vertex(db, {'label': node}, nodes_collection_name)
+    set_node_attributes(Nx_Sub_Net, {node : attr})
 
-  Nx_Sub_Net = nx.readwrite.node_link_data(Nx_Sub_Net)
+  Nx_Sub_Net = node_link_data(Nx_Sub_Net)
   sub_net = pa.nx_to_arango(Nx_Sub_Net, 'Sub_Net')
   sub_net = pa.export_to_arango(db, sub_net ,nodes_subcollection_name,
                                              nodes_subcollection_name + '_edges',
                                              nodes_subcollection_name + '_sub_graph')
 
   return sub_net, Nx_Sub_Net
+
+
+def delete_all(db):
+    for graph in db.graphs():
+        db.delete_graph(graph["name"])
+        
+    
+    for collection in db.collections():
+        if "_" != collection["name"][0]:
+         db.delete_collection(collection["name"])
+     

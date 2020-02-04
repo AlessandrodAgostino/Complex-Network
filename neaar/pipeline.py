@@ -1,9 +1,4 @@
-import os
 
-from arango import ArangoClient
-import networkx as nx
-
-from neaar import pa_utils as pa
 
 '''
 This file is a summary of what we are able to do by now:
@@ -19,12 +14,27 @@ Problems:
   - The sub-net visualization take all the vertices, so is not immediately centered. (Kind Solved with Sub-Graph)
 '''
 
+
+import os
+
+from arango import ArangoClient
+import networkx as nx
+
+from neaar import pa_utils as pa
+
 host, username, password = pa.load_pass(filename='config.json')
 
 # Initialize the client for ArangoDB. Connect to "_system" database as root user.
 client = ArangoClient(hosts=host)
 db     = client.db('_system', username=username, password=password)
 
+db.delete_graph("multipartite")
+db.delete_collection("collection_1")
+
+pa.delete_all(db)
+
+for c in db.collections():
+    print(c["name"])
 #%%
 # path of the file where orinal data are stored
 # in atom this is bit strange actually.
@@ -32,18 +42,22 @@ filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'SymptomsNet.
 filename= '../data/multipartite.gexf'
 # This function read a gexf file and create two
 # collections (edge, node) and a graph in database db.
-Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,multipartite = True,
-                       nodes_collection_name='Sym_Deas',
-                       edges_collection_name='Sym_Deas_edges',
-                       graph_name='Sym_Net')
+Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,multipartite=True,
+                       nodes_collection_name='collection',
+                       edges_collection_name='edges',
+                       graph_name='multipartite')
+
+g = db.graph("multipartite")
+
+pa.get_vertex(db, {"label" : '2' }, g.vertex_collections())
+
 # Now in the Arango web interface we have a graph and the two collections of nodes and edges.
 
 # Extract a subnet from the graph with a graph traverse of python-arango
 # This could be any traversal, any query, any sub set of nodes from Sym_Deas
-astenia_first_neighbours = pa.traverse(db=db, starting_node='emicrania',
-                                       nodes_collection_name='Sym_Deas',
-                                       graph_name='Sym_Net',
-                                       direction='outbound',
+astenia_first_neighbours = pa.traverse(db=db, starting_node='2',
+                                       graph_name='multipartite',
+                                       direction='any',
                                        item_order='forward',
                                        min_depth=0,
                                        max_depth=1,
@@ -56,56 +70,57 @@ astenia_first_neighbours = pa.traverse(db=db, starting_node='emicrania',
 Nx_Sub_Net = Nx_Net.subgraph([vertex['label'] for vertex in astenia_first_neighbours['vertices']])
 
 for node in Nx_Sub_Net:
-  attr = pa.get_vertex(db, {'label':node}, 'Sym_Deas')
+  attr = pa.get_vertex(db, {'label':node}, ["collection_0","collection_1","collection_2"])
   nx.set_node_attributes(Nx_Sub_Net, {node : attr})
+  
+pa.multipartite_to_arango(db,Nx_Sub_Net, "subnet","subedge","subgraph")
 
 sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
 
 sub_net = pa.nx_to_arango(sub_net, 'Sub_Net')
-
 Sub_Net = pa.export_to_arango(db, sub_net ,'Sub_Net', 'Sub_Net_edges', 'Sub_Graph')
 
-################### Keep this code as it is, may comes in handy later #########
+# ################### Keep this code as it is, may comes in handy later #########
 
-# create empty collection for the subnet
-pa.check_create_empty_collection(db, 'Sub_Sym_Deas_edges', edge=True)
+# # create empty collection for the subnet
+# pa.check_create_empty_collection(db, 'Sub_Sym_Deas_edges', edge=True)
 
-# We select only the edges that starts and ends within the sub net vertex set.
-# All the sub net's information is hence contained in this new edge collection.
-for n in astenia_first_neighbours['vertices']:
-  edges_of_n = Sym_Net.edge_collection('Sym_Deas_edges').edges(n, 'out')['edges']
+# # We select only the edges that starts and ends within the sub net vertex set.
+# # All the sub net's information is hence contained in this new edge collection.
+# for n in astenia_first_neighbours['vertices']:
+#   edges_of_n = Sym_Net.edge_collection('Sym_Deas_edges').edges(n, 'out')['edges']
 
-  for ed in edges_of_n:
-    outgoing_node = Sym_Net.vertex_collection('Sym_Deas').get(ed['_to'])
+#   for ed in edges_of_n:
+#     outgoing_node = Sym_Net.vertex_collection('Sym_Deas').get(ed['_to'])
 
-    if outgoing_node in astenia_first_neighbours['vertices']:
-        db.collection('Sub_Sym_Deas_edges').insert(ed)
+#     if outgoing_node in astenia_first_neighbours['vertices']:
+#         db.collection('Sub_Sym_Deas_edges').insert(ed)
 
-# Check and create the sub graph with the new edge definition.
-graph = pa.check_create_empty_graph(db, 'Sub_Net')
-if not graph.has_edge_definition('Sub_Sym_Deas_edges'):
-  graph.create_edge_definition('Sub_Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
+# # Check and create the sub graph with the new edge definition.
+# graph = pa.check_create_empty_graph(db, 'Sub_Net')
+# if not graph.has_edge_definition('Sub_Sym_Deas_edges'):
+#   graph.create_edge_definition('Sub_Sym_Deas_edges', ['Sym_Deas'], ['Sym_Deas'])
 
-# now networkx for analysis
-import networkx as nx
+# # now networkx for analysis
+# import networkx as nx
 
-# export edges directly from the graph of pythonarango
-edge_collection = db.graph('Sub_Net').edge_collection("Sub_Sym_Deas_edges")
+# # export edges directly from the graph of pythonarango
+# edge_collection = db.graph('Sub_Net').edge_collection("Sub_Sym_Deas_edges")
 
-# export dicts of edges
-cursor = edge_collection.export()
-edges  = cursor.batch()
+# # export dicts of edges
+# cursor = edge_collection.export()
+# edges  = cursor.batch()
 
-# create edge list
-links = [f"{ed['source']} {ed['target']}" for ed in edges]
+# # create edge list
+# links = [f"{ed['source']} {ed['target']}" for ed in edges]
 
-# load graph
-G = nx.read_edgelist(links)
+# # load graph
+# G = nx.read_edgelist(links)
 
-# add nodes attributes directly from the original node collection
-for node in G.nodes():
-  attr = pa.get_vertex(db, {'label':node}, 'Sym_Deas')
-  nx.set_node_attributes(G, {node : attr})
+# # add nodes attributes directly from the original node collection
+# for node in G.nodes():
+#   attr = pa.get_vertex(db, {'label':node}, 'Sym_Deas')
+#   nx.set_node_attributes(G, {node : attr})
 
-# Now we have a networkx (Sub) Graph object with all the informations stored
-# in the arangodb collection
+# # Now we have a networkx (Sub) Graph object with all the informations stored
+# # in the arangodb collection
