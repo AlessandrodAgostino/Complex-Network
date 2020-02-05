@@ -43,7 +43,7 @@ The former is possible thanks to ArangoDB web interface, as shown in the figures
 For the latter we relied on the poweful AQL, that is the query language implemented in arango. It is used to execute different kind of "search" through the graph, and select nodes and edges.
 
 \paragraph{Why ArangoDB?}
-ArangoDB resulted to be the NoSQL engine with the most favorable compromise between memory usage and computation speed among others available alternatives. A comparative table of the performance of different NoSQL engines is reported in figure \ref{fig:tab}
+ArangoDB resulted to be the NoSQL engine with the most favorable compromise between memory usage and computation speed among others available alternatives. A comparative table of the performance of different NoSQL engines is reported in figure \ref{fig:tab}.
 ArangoDB offers a valid web interface where all the commands can be given intuitively and graph and queries' results can be visualized in an organic way.
 Furthermore there are several ArangoDB Python interfaces available on line, which allowed us to taylor this poweful tool to our needs.
 
@@ -58,10 +58,10 @@ Even though ArangoDB allows fast queries it is necessary the right tool to study
 
 \section{Pipeline}
 Now we describe a typical usage case and all the operations needed to extract a subgraph in ArangoDB.
-The first thing to do is to read the file in the right input format (typically \texttt{.gexf}) through the function \texttt{read\_gexf}:
+The first thing to do is to read the file in the right input format (typically \texttt{.gexf}) through the dedicated function \texttt{read\_gexf}:
 
 \begin{verbatim}
-ArDB_Net, Nx_Net = 
+ArDB_Net, Nx_Net =
   read_gexf(db,
             filename,
             nodes_collection_name='nodes',
@@ -70,8 +70,8 @@ ArDB_Net, Nx_Net =
             multipartite=False)
 \end{verbatim}
 
-The function takes the information about nodes and edges from the gexf file and creates the corrispondent collections on the ArangoDB engine.
-Then it returns two graphs: one python-arango type and one of networkx type. 
+The function takes the information about nodes and edges from the gexf file and creates the corrispondent collections on ArangoDB.
+Then it returns two graphs: one of python-arango type and one of networkx type.
 
 Once the graph and the collections of nodes and edges are uploaded on Arango web interface we can proceed with futher analysis. For instance, we can perform a graph traversal aimed to extract the first neighbours of a certain node.
 
@@ -100,7 +100,7 @@ Nx_Sub_Net =
         first_neighbours['vertices']])
 \end{verbatim}
 
-In this way we create the minimal subgraph containing only the nearest neighbours of the selected node with the labels of nodes and the corresponding edges. 
+In this way we create the minimal subgraph containing only the nearest neighbours of the selected node with the labels of nodes and the corresponding edges.
 To recover every information contained in the starting network, we add all the attributes back to each node:
 
 \begin{verbatim}
@@ -126,9 +126,8 @@ Sub_Net = pa.export_to_arango(db,
                   'Sub_Graph')
 \end{verbatim}
 
-Now the resulting subnet is ready for every kind of analysis offered by NetworkX. 
-This is a useful procedure to extract articulated subnets even on big non-relational base.
-% Managing a huge amount of information is, infact, one of the weak points of a straight NetworkX build.
+Now the resulting subnet is ready for every kind of analysis offered by NetworkX.
+This is a useful procedure to extract articulated subnets.
 
 \section{Timing}
 As already mentioned, one of the main focuses is to apply queries to very big networks.
@@ -157,24 +156,15 @@ This is a useful information and it allows to make prediction based on the parti
 
 \begin{figure}[ht!]
   \includegraphics[width=\linewidth]{images/4_shortest_path_timing_readable.png}
-  \caption{\small{\textit{Timing trend for the query that extracts the first 4 shortest paths beween two random nodes. The mean is computed for 30 different couples on the same graph.}}}
+  \caption{\small{\textit{Timing trend for the query that extracts the first 4 shortest paths between two random nodes. The mean is computed for 30 different couples on the same graph.}}}
   \label{fig:sh_paths}
 \end{figure}
-
-% In figure \ref{fig:tr_0_2}, we show the trend of times with respect to the dimensions of the network for the traversal that extract the second order neighbours of a chosen node. We performed a linear fitting on the sampled data and it seems to show a linear relathionship also in this case, with $R^2 = 0.94$.
-% 
-% 
-% From the analysis of both the two different Benchmark series we found that the time took by the queries apparently scales linearly with the graph dimension.
-% This is a useful information and allow to make prediction based on the particular graph under analysis.
 
 \begin{figure}[ht!]
    \includegraphics[width=\linewidth]{images/traverse_0_2_readable.png}
    \caption{\small{\textit{Timing trend of the second neighbours extraction query. The mean is calculated for 30 different starting nodes on the same graph.}}}
    \label{fig:tr_0_2}
 \end{figure}
-
-% From the analysis of both the two different Benchmark series we found that the time took by the queries apparently scales linearly with the graph dimension.
-% This is a useful information and allow to make prediction based on the particular graph under analysis.
 
 \newpage
 
@@ -200,7 +190,7 @@ In the case of a multipartite graph, objects from different classes can be visua
 \newpage
 
 \section{Conclusions}
-% \balance % ci sta
+\balance % ci sta
 We've produced an applicative to visualize and efficiently query a graph-like database with a simple yet resourceful programming language like python.
 
 As shown in the results, the scaling of the ArangoDB query algorithm seems linear for the two cases taken into consideration, $k$ shortest paths and neighborhood search. This is promising for future application in large dataset.
@@ -210,7 +200,7 @@ As shown in the results, the scaling of the ArangoDB query algorithm seems linea
 The main problems lay in the level of control we can gather through python. Indeed, it seems to be impossible to load and save default queries.
 Moreover, we couldn't manage to save graph visualization options, which could ease the accessibility.
 
-Another issue, come from the slowness of the export to arango algorithm, but since it's a \textit{una tantum} operation, it isn't a priority.
+Another issue, comes from the slowness of the exportation to arango algorithm, but since it's a \textit{una tantum} operation, it isn't a priority.
 
 \paragraph{Future Ideas}
 
