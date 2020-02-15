@@ -42,9 +42,8 @@ def saveCollection(db, name, filename):
   if db.has_collection(name):
 
     cursor = db.collection(name).export()
-    from json import dump
     with open(filename, 'w') as file :
-      dump(list(cursor.batch()), file)
+      json.dump(list(cursor.batch()), file)
   else :
     print(f'Collection {name} does not exist in this database')
 
@@ -141,10 +140,9 @@ def get_vertex(db, filter, collection_names):
       else:
           return cursor.next()
 
-  #raise ValueError('ciao')#'node with {} not found'.format(filter))
   return []
 
-def traverse(db, starting_node, graph_name, **kwargs):
+def traverse(db, starting_node, graph_name, filter=None, **kwargs):
   '''
   This function is basically a wrap of the traverse function of python-arango.
   The only difference is that it let you choose the starting node by its name.
@@ -165,9 +163,18 @@ def traverse(db, starting_node, graph_name, **kwargs):
     Python list containing vertex and PATH crossed by the traverse.
   '''
 
+  if filter is None:
+    filter = {'label' : starting_node}
+
+
   Net = db.graph(graph_name)
   collections = Net.vertex_collections()
-  node = get_vertex(db, {'label' : starting_node}, collections)
+  node = get_vertex(db, filter, collections)
+
+  if node == []:
+    print('No Node found')
+    return None
+
   result = Net.traverse(node, **kwargs)
 
   return result
@@ -201,11 +208,11 @@ def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection
   '''
   # Create nodes collection and insert all the nodes in the net
   nodes_collection = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
-  nodes_collection.insert_many(node_link_data['nodes'])
+  nodes_collection.import_bulk(node_link_data['nodes'])
 
   # Create links collection and insert all the edges in the net
   edges_collection = check_create_empty_collection(db=db, collection_name=edges_collection_name, edge=True)
-  edges_collection.insert_many(node_link_data['links'])
+  edges_collection.import_bulk(node_link_data['links'])
 
   # Directly create the graph and add egde collection
   net = check_create_empty_graph(db=db, graph_name=graph_name)
@@ -214,7 +221,7 @@ def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection
   return net
 
 def multipartite_to_arango(db, nx_graph, node_collection_name, edge_collection_name='multi_edges', graph_name='multipartite'):
-    
+
       classes = {}
 
       #now insert each node in their collections
@@ -236,9 +243,9 @@ def multipartite_to_arango(db, nx_graph, node_collection_name, edge_collection_n
 
       net = check_create_empty_graph(db=db, graph_name=graph_name)
       net.create_edge_definition(edge_collection_name, list(classes.values()), list(classes.values()))
-      
+
       return net
-  
+
 
 def read_gexf(db, filename, multipartite=False,
               nodes_collection_name='nodes',
@@ -268,7 +275,7 @@ def read_gexf(db, filename, multipartite=False,
 
   nx_graph = rgexf(filename)
   # this thing actually doubles the used RAM, it could be better to remove it.
-  
+
   if not multipartite:
       # add _key, _to and _from, for ArangoDB
       graph    = node_link_data(nx_graph)
@@ -281,7 +288,7 @@ def read_gexf(db, filename, multipartite=False,
 
       return Net, nx_graph
   else:
-     
+
       return multipartite_to_arango(db, nx_graph, nodes_collection_name, edges_collection_name, graph_name), nx_graph
 
 
@@ -335,9 +342,8 @@ def subgraph(nodes_list, nx_graph, nodes_collection_name, nodes_subcollection_na
 def delete_all(db):
     for graph in db.graphs():
         db.delete_graph(graph["name"])
-        
-    
+
+
     for collection in db.collections():
         if "_" != collection["name"][0]:
          db.delete_collection(collection["name"])
-     
