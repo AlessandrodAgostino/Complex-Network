@@ -71,4 +71,42 @@ plt.text(0, 0.3,
          verticalalignment='top',
          bbox = dict(boxstyle='square', alpha=0.3));
 # plt.savefig('Benchmark/4_shortest_path_timing_readable.png')
+#%% Exponential fit (BROKEN)
+mean = mean.astype(np.int64)
+
+
+from scipy.optimize import curve_fit
+def func_exp(x, a, b):
+    return  b* np.exp(a* x)
+
+popt, perr = curve_fit(func_exp, node_numbers, mean, maxfev=10000 )
+1x_val = np.linspace(node_numbers[0], node_numbers[-1], 100)
+prev_val = func_exp(x_val, *popt)
+
+fig = plt.figure(figsize=(15, 8))
+plt.plot(node_numbers, mean, label='Collected Times')
+plt.fill_between(node_numbers, mean+std, mean-std, alpha=0.5)
+plt.plot(node_numbers, intercept + slope*np.asarray(node_numbers), 'y')
+
+plt.plot(x_val, prev_val ,color='r')
+plt.xlabel('Number of nodes', fontsize=25)
+plt.ylabel('Run Time (s)', fontsize=25)
+plt.title('First 4 shortest - Exponential Fit', fontsize=30)
+
+# ticks_size = 25
+# plt.rc('xtick', labelsize=ticks_size)
+# plt.rc('ytick', labelsize=ticks_size)
+#
+# textstr = '\n'.join(('$y(x) = be^{ax}$',
+#                     # f'a = {intercept * 1e3:.3f} $ms$',
+#                     # f'b = {slope * 1e6:.3f} $\\pm$ {std_err * 1e6:.3f} $\\mu s$',
+#                     # f'$R^2$ = {r_value**2:.3}, degree = 1',
+#                     f'$R^2$ = {0}'))
+
+# plt.text(0, 0.3,
+#          s=textstr,
+#          fontsize=20,
+#          verticalalignment='top',
+#          bbox = dict(boxstyle='square', alpha=0.3));
+
 #%%
