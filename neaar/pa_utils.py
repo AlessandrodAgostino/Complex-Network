@@ -200,19 +200,30 @@ def nx_to_arango(node_link_data, nodes_collection_name):
 
   return node_link_data
 
-def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection_name, graph_name):
+def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection_name, graph_name, batches=1):
   '''
   node_link_data parameter is a modified version,
   containings _key, _to and _from keywords in the dictionaries. As returned from
   nx_to_arango()
   '''
+
+  per_batch = len(node_link_data['nodes']) // batches
+
   # Create nodes collection and insert all the nodes in the net
   nodes_collection = check_create_empty_collection(db=db, collection_name=nodes_collection_name, edge=False)
-  nodes_collection.import_bulk(node_link_data['nodes'])
+  for i in range(batches):
+    nodes_collection.import_bulk(node_link_data['nodes'][per_batch*i : per_batch*(i+1)])
+
+  if batches > 1:
+    nodes_collection.import_bulk(node_link_data['nodes'][per_batch*batches:])
 
   # Create links collection and insert all the edges in the net
   edges_collection = check_create_empty_collection(db=db, collection_name=edges_collection_name, edge=True)
-  edges_collection.import_bulk(node_link_data['links'])
+  for i in range(batches):
+    edges_collection.import_bulk(node_link_data['links'][per_batch*i : per_batch*(i+1)])
+
+  if batches > 1:
+    edges_collection.import_bulk(node_link_data['links'][per_batch*batches:])
 
   # Directly create the graph and add egde collection
   net = check_create_empty_graph(db=db, graph_name=graph_name)
@@ -222,29 +233,29 @@ def export_to_arango(db, node_link_data, nodes_collection_name, edges_collection
 
 def multipartite_to_arango(db, nx_graph, node_collection_name, edge_collection_name='multi_edges', graph_name='multipartite'):
 
-      classes = {}
+  classes = {}
 
-      #now insert each node in their collections
-      for n,data in nx_graph.nodes(data=True):
-          collection_name = node_collection_name + '_' + str(data['subset'])
-          nodes_collection = check_create_empty_collection(db, collection_name, truncate=False)
-          data['_key'] = unidecode.unidecode(str(data['label']))
-          nodes_collection.insert(data)
-          classes[data['subset']] = node_collection_name + '_' + str(data['subset'])
+  #now insert each node in their collections
+  for n,data in nx_graph.nodes(data=True):
+    collection_name = node_collection_name + '_' + str(data['subset'])
+    nodes_collection = check_create_empty_collection(db, collection_name, truncate=False)
+    data['_key'] = unidecode.unidecode(str(data['label']))
+    nodes_collection.insert(data)
+    classes[data['subset']] = node_collection_name + '_' + str(data['subset'])
 
-      edges_collection = check_create_empty_collection(db=db, collection_name=edge_collection_name, edge=True)
+  edges_collection = check_create_empty_collection(db=db, collection_name=edge_collection_name, edge=True)
 
-      #now insert the edges in the edge collection and the attributes from and to with the right classes
-      for n,ed in enumerate(nx_graph.edges(data=True)):
-          ed[2]['_key']  = 'E'+str(n)
-          ed[2]['_from'] =  classes[nx_graph.nodes[ed[0]]['subset']] + '/' + str(ed[0])
-          ed[2]['_to']   =  classes[nx_graph.nodes[ed[1]]['subset']] + '/' + str(ed[1])
-          edges_collection.insert(ed[2])
+  #now insert the edges in the edge collection and the attributes from and to with the right classes
+  for n,ed in enumerate(nx_graph.edges(data=True)):
+    ed[2]['_key']  = 'E'+str(n)
+    ed[2]['_from'] =  classes[nx_graph.nodes[ed[0]]['subset']] + '/' + str(ed[0])
+    ed[2]['_to']   =  classes[nx_graph.nodes[ed[1]]['subset']] + '/' + str(ed[1])
+    edges_collection.insert(ed[2])
 
-      net = check_create_empty_graph(db=db, graph_name=graph_name)
-      net.create_edge_definition(edge_collection_name, list(classes.values()), list(classes.values()))
+  net = check_create_empty_graph(db=db, graph_name=graph_name)
+  net.create_edge_definition(edge_collection_name, list(classes.values()), list(classes.values()))
 
-      return net
+  return net
 
 
 def read_gexf(db, filename, multipartite=False,
@@ -274,11 +285,10 @@ def read_gexf(db, filename, multipartite=False,
   '''
 
   nx_graph = rgexf(filename)
-  # this thing actually doubles the used RAM, it could be better to remove it.
 
   if not multipartite:
       # add _key, _to and _from, for ArangoDB
-      graph    = node_link_data(nx_graph)
+      graph = node_link_data(nx_graph)
       graph = nx_to_arango(graph, nodes_collection_name)
       Net   = export_to_arango(db,
                                graph,
@@ -287,8 +297,8 @@ def read_gexf(db, filename, multipartite=False,
                                graph_name)
 
       return Net, nx_graph
-  else:
 
+  else:
       return multipartite_to_arango(db, nx_graph, nodes_collection_name, edges_collection_name, graph_name), nx_graph
 
 

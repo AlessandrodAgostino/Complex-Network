@@ -34,22 +34,31 @@ db.delete_collection("collection_1")
 pa.delete_all(db)
 
 for c in db.collections():
+<<<<<<< HEAD
     print(c["name"])
+=======
+  print(c["name"])
+>>>>>>> e86b4e4a8daeecb40440b5d382d71932747d5613
 
 #%%
 # path of the file where orinal data are stored
 # in atom this is bit strange actually.
 filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'SymptomsNet.gexf')
-filename= '../data/multipartite.gexf'
 # This function read a gexf file and create two
 # collections (edge, node) and a graph in database db.
 Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,multipartite=False,
+<<<<<<< HEAD
                        nodes_collection_name='collection',
                        edges_collection_name='edges',
                        graph_name='Sym_Deas')
 
 g = db.graph("Sym_Deas")
 
+=======
+                       nodes_collection_name='nodes',
+                       edges_collection_name='edges',
+                       graph_name='Sym_Deas')
+>>>>>>> e86b4e4a8daeecb40440b5d382d71932747d5613
 
 # LAST WORK HERE
 coll = g.vertex_collection('collection')
@@ -63,7 +72,7 @@ pa.get_vertex(db, {"label" : 'astenia' }, g.vertex_collections())
 
 # Extract a subnet from the graph with a graph traverse of python-arango
 # This could be any traversal, any query, any sub set of nodes from Sym_Deas
-astenia_first_neighbours = pa.traverse(db=db, starting_node='2',
+astenia_first_neighbours = pa.traverse(db=db, starting_node='astenia',
                                        graph_name='multipartite',
                                        direction='any',
                                        item_order='forward',
