@@ -57,7 +57,7 @@ for n,N in enumerate(Number_Nodes):
   timing_net = pa.export_to_arango(db, node_link,
                                    nodes_collection_name,
                                    edges_collection_name,
-                                   graph_name)
+                                   graph_name, batches=10)
   toc = now()
   upload_table.loc[n] = [N, P, toc-tic, user]
 

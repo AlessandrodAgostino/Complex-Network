@@ -34,18 +34,18 @@ db.delete_collection("collection_1")
 pa.delete_all(db)
 
 for c in db.collections():
-    print(c["name"])
+  print(c["name"])
+
 #%%
 # path of the file where orinal data are stored
 # in atom this is bit strange actually.
 filename = os.path.join(os.path.dirname('__file__'), '..' ,'data', 'SymptomsNet.gexf')
-filename= '../data/multipartite.gexf'
 # This function read a gexf file and create two
 # collections (edge, node) and a graph in database db.
-Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,multipartite=True,
-                       nodes_collection_name='collection',
+Sym_Net, Nx_Net = pa.read_gexf(db, filename=filename,multipartite=False,
+                       nodes_collection_name='nodes',
                        edges_collection_name='edges',
-                       graph_name='multipartite')
+                       graph_name='Sym_Deas')
 
 g = db.graph("multipartite")
 
@@ -55,7 +55,7 @@ pa.get_vertex(db, {"label" : '2' }, g.vertex_collections())
 
 # Extract a subnet from the graph with a graph traverse of python-arango
 # This could be any traversal, any query, any sub set of nodes from Sym_Deas
-astenia_first_neighbours = pa.traverse(db=db, starting_node='2',
+astenia_first_neighbours = pa.traverse(db=db, starting_node='astenia',
                                        graph_name='multipartite',
                                        direction='any',
                                        item_order='forward',
@@ -72,7 +72,7 @@ Nx_Sub_Net = Nx_Net.subgraph([vertex['label'] for vertex in astenia_first_neighb
 for node in Nx_Sub_Net:
   attr = pa.get_vertex(db, {'label':node}, ["collection_0","collection_1","collection_2"])
   nx.set_node_attributes(Nx_Sub_Net, {node : attr})
-  
+
 pa.multipartite_to_arango(db,Nx_Sub_Net, "subnet","subedge","subgraph")
 
 sub_net = nx.readwrite.node_link_data(Nx_Sub_Net)
